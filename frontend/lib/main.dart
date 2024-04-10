@@ -3,34 +3,38 @@ import 'loginPage.dart';
 import 'signinPage.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '로그인/회원가입',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: TextTheme(
-          headline6: TextStyle(
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
             fontSize: 30.0,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      home: FirstPage(),
+      home: const FirstPage(),
     );
   }
 }
 
 class FirstPage extends StatelessWidget {
+  const FirstPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''), 
+        title: const Text(''),
       ),
       body: Center(
         child: Column(
@@ -40,29 +44,30 @@ class FirstPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  "assets/logo.png", 
-                  width: 150, 
-                  height: 150, 
+                  "assets/logo.png",
+                  width: 150,
+                  height: 150,
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 120),
+              margin: const EdgeInsets.symmetric(horizontal: 120),
               child: Image.asset(
                 "assets/aiDoctor.jpeg", // aiDoctor 이미지 경로
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginSignupScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const LoginSignupScreen()),
                 );
               },
-              child: Text('로그인/회원가입'), 
+              child: const Text('로그인/회원가입'),
             ),
           ],
         ),
@@ -71,14 +76,15 @@ class FirstPage extends StatelessWidget {
   }
 }
 
-
 class LoginSignupScreen extends StatelessWidget {
+  const LoginSignupScreen({super.key});
+
   //로그인, 회원가입 화면
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('로그인/회원가입'),
+        title: const Text('로그인/회원가입'),
       ),
       body: Center(
         child: Column(
@@ -92,9 +98,9 @@ class LoginSignupScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
-              child: Text('Login'),
+              child: const Text('Login'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -103,7 +109,7 @@ class LoginSignupScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => SignupPage()),
                 );
               },
-              child: Text('Sign Up'),
+              child: const Text('Sign Up'),
             ),
           ],
         ),
