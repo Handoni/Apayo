@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reactive_hurt1/login_page.dart';
+import 'package:frontend/login_page.dart';
 
 class DesktopLayout extends StatelessWidget {
-  const DesktopLayout({Key? key}) : super(key: key);
+  const DesktopLayout({super.key});
 
   void _onLogInPressed(BuildContext context) {
     Navigator.push(

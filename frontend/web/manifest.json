@@ -1,6 +1,6 @@
 {
-    "name": "reactive_hurt1",
-    "short_name": "reactive_hurt1",
+    "name": "frontend",
+    "short_name": "frontend",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

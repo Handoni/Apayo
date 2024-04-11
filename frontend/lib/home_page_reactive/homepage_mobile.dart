@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reactive_hurt1/login_page.dart';
+import 'package:frontend/login_page.dart';
 
 class MobileLayout extends StatelessWidget {
   const MobileLayout({Key? key}) : super(key: key);
