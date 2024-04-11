@@ -1,13 +1,16 @@
-# Fltter frontend milestone   
-4/12까지 인터페이스 구현, API 조사   
-4/27~5/6 데모 완성   
-<br>
+# reactive_hurt1
 
-### UI Screen Implementation List   
-- splash screen   
-- log in   
-- sign up   
-- chat   
-- select   
-- disease - medical department list   
-- hospital near user list   
+A new Flutter project.
+
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
