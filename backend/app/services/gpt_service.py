@@ -1,5 +1,5 @@
 from app.core.config import get_settings
-from app.models.symptom_input import SymptomInput
+from app.api.schemas.disease_prediction_schema import SymptomInput
 from openai import OpenAI
 from app.utils.data_processing import parse_gpt_response
 

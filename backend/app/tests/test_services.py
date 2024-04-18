@@ -1,6 +1,6 @@
 import pytest
 from app.services.gpt_service import disease_prediction
-from app.models.symptom_input import SymptomInput
+from app.api.schemas.disease_prediction_schema import SymptomInput
 from httpx import AsyncClient
 
 from app.main import app
