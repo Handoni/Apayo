@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers.disease_router import router as api_router
+from app.api.routers.disease_prediction_router import router as api_router
 import uvicorn
 
 app = FastAPI()
