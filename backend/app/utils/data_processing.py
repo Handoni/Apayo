@@ -1,19 +1,25 @@
-from openai import ChatCompletion
+from app.api.schemas.disease_prediction_schema import *
 
-def parse_gpt_response(response : str) -> list:
-    
+
+def parse_gpt_response(response: str) -> list:
+    if "no symptoms" in response.lower():
+        return None
+
     responses = response.split("\n")
 
-    symptoms = [_.strip() for _ in responses[1].replace('2.','').split(",")]
-    
-    diseases = [_.strip() for _ in responses[0].replace('1.','').split(",")]
-    
+    symptoms = [_.strip() for _ in responses[0].replace("1.", "").split(",")]
+
     # Extract the disease-symptom pairs
     temp = []
     for pair in responses[2].split("/"):
-        temp.append([_.strip() for _ in pair.replace('3.','').split(",")])
-        
-    disease_symptom_pairs = {_[0]:_[1:] for _ in temp}
-    
-    
-    return symptoms, diseases, disease_symptom_pairs
+        temp.append([_.strip() for _ in pair.replace("3.", "").split(",")])
+
+    questions = []
+    for i in temp:
+        name, code = i[0].split(":")
+        name = name.strip()
+        code = code.strip()
+        disease = Disease(name=name, code=code)
+        questions.append(SymptomQuestion(id=0, disease=disease, question=i[1:]))
+
+    return symptoms, questions
