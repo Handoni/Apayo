@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.schemas.disease_prediction_schema import SymptomInput, DiseasePredictionResponse
+from app.api.schemas.primary_disease_prediction import SymptomInput, DiseasePredictionResponse
 from app.services.gpt_service import disease_prediction
 
 router = APIRouter()

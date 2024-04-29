@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict
+from pydantic import BaseModel
+from typing import List
 
 
 class SymptomInput(BaseModel):
+    id: int
     symptoms: str
 
 
@@ -13,10 +14,15 @@ class Disease(BaseModel):
 
 class SymptomQuestion(BaseModel):
     id: int
+    question: str
+    
+class DiseaseRelatedQuestions(BaseModel):
+    id: int
     disease: Disease
-    question: List[str]
+    questions: List[SymptomQuestion]
 
 
 class DiseasePredictionResponse(BaseModel):
+    id: int
     symptoms: List[str]
-    questions: List[SymptomQuestion]
+    questions: List[DiseaseRelatedQuestions]

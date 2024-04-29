@@ -1,5 +1,5 @@
 from app.utils.data_processing import parse_gpt_response
-from app.api.schemas.disease_prediction_schema import *
+from app.api.schemas.primary_disease_prediction import *
 
 
 def test_data_processing():
@@ -8,17 +8,25 @@ def test_data_processing():
     processed_data = parse_gpt_response(input)
 
     symptoms = ["증상1", "증상2"]
-    questions = [
-        SymptomQuestion(
+    questions = [DiseaseRelatedQuestions(
             id=0,
             disease=Disease(name="질병1", code="code1"),
-            question=["증상1", "증상2", "증상3"],
+            questions=[
+                SymptomQuestion(id=0, question="증상1"),
+                SymptomQuestion(id=0, question="증상2"),
+                SymptomQuestion(id=0, question="증상3"),
+            ],
         ),
-        SymptomQuestion(
+        DiseaseRelatedQuestions(
             id=0,
             disease=Disease(name="질병2", code="code2"),
-            question=["증상1", "증상2", "증상3"],
+            questions=[
+                SymptomQuestion(id=0, question="증상1"),
+                SymptomQuestion(id=0, question="증상2"),
+                SymptomQuestion(id=0, question="증상3"),
+            ],
         ),
+                 
     ]
 
     expected_output = (symptoms, questions)

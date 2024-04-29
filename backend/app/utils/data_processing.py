@@ -1,4 +1,4 @@
-from app.api.schemas.disease_prediction_schema import *
+from app.api.schemas.primary_disease_prediction import *
 
 
 def parse_gpt_response(response: str) -> list:
@@ -14,12 +14,12 @@ def parse_gpt_response(response: str) -> list:
     for pair in responses[2].split("/"):
         temp.append([_.strip() for _ in pair.replace("3.", "").split(",")])
 
-    questions = []
+    question = []
     for i in temp:
         name, code = i[0].split(":")
         name = name.strip()
         code = code.strip()
         disease = Disease(name=name, code=code)
-        questions.append(SymptomQuestion(id=0, disease=disease, question=i[1:]))
+        question.append(DiseaseRelatedQuestions(id=0, disease=disease, questions=list(map(lambda x:SymptomQuestion(id=0, question=x.strip()), i[1:]))))
 
-    return symptoms, questions
+    return symptoms, question

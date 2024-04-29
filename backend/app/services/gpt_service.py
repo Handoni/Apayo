@@ -1,5 +1,5 @@
 from app.core.config import get_settings
-from app.api.schemas.disease_prediction_schema import SymptomInput
+from app.api.schemas.primary_disease_prediction import SymptomInput
 from openai import OpenAI
 from app.utils.data_processing import parse_gpt_response
 from fastapi import HTTPException
@@ -58,6 +58,7 @@ async def disease_prediction(input_data: SymptomInput):
     if not response:
         raise HTTPException(status_code=404, detail="failed to find symptoms")
     return {
+        "id": 0,
         "symptoms": response[0],
         "questions": response[1],
     }
