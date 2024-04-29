@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 
-class SymptomInput(BaseModel):
+class Symptom(BaseModel):
     id: int
     symptoms: str
 
@@ -12,14 +12,10 @@ class Disease(BaseModel):
     code: str
 
 
-class SymptomQuestion(BaseModel):
-    id: int
-    question: str
-    
 class DiseaseRelatedQuestions(BaseModel):
     id: int
     disease: Disease
-    questions: List[SymptomQuestion]
+    questions: List[Symptom]
 
 
 class DiseasePredictionResponse(BaseModel):

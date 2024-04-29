@@ -8,25 +8,25 @@ def test_data_processing():
     processed_data = parse_gpt_response(input)
 
     symptoms = ["증상1", "증상2"]
-    questions = [DiseaseRelatedQuestions(
+    questions = [
+        DiseaseRelatedQuestions(
             id=0,
             disease=Disease(name="질병1", code="code1"),
             questions=[
-                SymptomQuestion(id=0, question="증상1"),
-                SymptomQuestion(id=0, question="증상2"),
-                SymptomQuestion(id=0, question="증상3"),
+                Symptom(id=0, symptoms="증상1"),
+                Symptom(id=0, symptoms="증상2"),
+                Symptom(id=0, symptoms="증상3"),
             ],
         ),
         DiseaseRelatedQuestions(
             id=0,
             disease=Disease(name="질병2", code="code2"),
             questions=[
-                SymptomQuestion(id=0, question="증상1"),
-                SymptomQuestion(id=0, question="증상2"),
-                SymptomQuestion(id=0, question="증상3"),
+                Symptom(id=0, symptoms="증상1"),
+                Symptom(id=0, symptoms="증상2"),
+                Symptom(id=0, symptoms="증상3"),
             ],
         ),
-                 
     ]
 
     expected_output = (symptoms, questions)

@@ -20,6 +20,12 @@ def parse_gpt_response(response: str) -> list:
         name = name.strip()
         code = code.strip()
         disease = Disease(name=name, code=code)
-        question.append(DiseaseRelatedQuestions(id=0, disease=disease, questions=list(map(lambda x:SymptomQuestion(id=0, question=x.strip()), i[1:]))))
+        question.append(
+            DiseaseRelatedQuestions(
+                id=0,
+                disease=disease,
+                questions=list(map(lambda x: Symptom(id=0, symptoms=x.strip()), i[1:])),
+            )
+        )
 
     return symptoms, question
