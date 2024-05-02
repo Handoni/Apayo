@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/gptchat.dart';
-//import 'package:frontend/signUp_page.dart';
+//mport 'package:frontend/signUp_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -161,12 +161,12 @@ class LoginPage extends StatelessWidget {
                             width: formFieldWidth,
                             child: ElevatedButton(
                               onPressed: () {
-                                //Navigator.push(
-                                //context,
-                                // MaterialPageRoute(
-                                //builder: (context) => const SignUpPage(),
-                                // ),
-                                // );
+                                //  Navigator.push(
+                                //  context,
+                                //    MaterialPageRoute(
+                                //     builder: (context) => const SignUpPage(),
+                                //   ),
+                                //   );
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,

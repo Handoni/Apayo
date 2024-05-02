@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/select_card.dart';
+import 'package:http/http.dart' as http;
 
 class GptPage extends StatefulWidget {
   const GptPage({super.key});
@@ -12,7 +13,9 @@ class _GptPageState extends State<GptPage> {
   bool selectedCard = false; // 선지가 생성됐는지
   bool recieveResult = false; // 결과가 도착했는지
   Key nextKey = UniqueKey(); // 다음으로 이동
+
   List<String> contents = [
+    // test용, 백이랑 연동해보고 삭제.
     // 생성될 선지 버튼
     'Item 1',
     'Item 2',
@@ -31,7 +34,7 @@ class _GptPageState extends State<GptPage> {
     setState(() {
       contents = newData; // 기존 데이터를 새 데이터로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
-      selectedCard = true;
+      selectedCard = true; // 선지 생성됨.
     });
   }
 
@@ -42,20 +45,22 @@ class _GptPageState extends State<GptPage> {
   void _sendMessage() async {
     String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
     // 백엔드로 POST 요청 보내기
-    // http.Response response = await http.post(
-    //   Uri.parse('http://your-server.com/send'), // 백엔드 URL. 아직 안 넣음.
-    //   body: {'message': text}, // POST 요청의 바디 (메시지 데이터)
-    // );
+    http.Response response = await http.post(
+      Uri.parse(
+          'http://127.0.0.1:8000/primary_disease_predicton'), // 백엔드 URL. 아직 안 넣음.
+      body: {'symptoms': text}, // POST 요청의 바디 (메시지 데이터)
+    );
 
-    // if (response.statusCode == 200) {
-    // 서버 응답 성공 확인
-    setState(() {
-      userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
-      _chatControlloer.clear(); // 텍스트 필드 클리어
-    });
-    // } else {
-    // 에러 처리 로직
-    //}
+    if (response.statusCode == 200) {
+      // 서버 응답 성공 확인
+      setState(() {
+        userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
+        _chatControlloer.clear(); // 텍스트 필드 클리어
+      });
+    } else {
+      // 에러 처리 로직
+      print("서버 응답 실패");
+    }
   }
 
   void finalResult() {
@@ -121,7 +126,7 @@ class _GptPageState extends State<GptPage> {
                       ),
                       Column(
                         children: [
-                          if (selectedCard) // 조건부 렌더링
+                          if (selectedCard) // 선지가 생성됐을 때 출력.
                             const Text("아래 해당되는 항목을 눌러보세요!",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w900)),
@@ -155,28 +160,10 @@ class _GptPageState extends State<GptPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            // if (selectedCard)
+                            // if (selectedCard)  // 백이랑 합치고 주석 해제.
                             // (
                             if (!recieveResult) // 최종 결과 안 나올 때까지
                               (AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                  ),
-                                  key: nextKey, // 버튼이 변경될 때마다 새 키 사용
-                                  onPressed: updateData,
-                                  child: const Text(
-                                    '다음 페이지로 이동 >',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ))
-                            else // 최종 결과 나왔으면
-                              AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
@@ -192,8 +179,7 @@ class _GptPageState extends State<GptPage> {
                                     ),
                                   ),
                                 ),
-                              )
-
+                              ))
                             // )
                             ,
                           ],
