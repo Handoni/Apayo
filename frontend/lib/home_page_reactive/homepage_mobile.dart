@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/login_page.dart';
+import 'package:frontend/signUp_page.dart';
 
 class MobileLayout extends StatelessWidget {
   const MobileLayout({Key? key}) : super(key: key);
@@ -11,9 +12,9 @@ class MobileLayout extends StatelessWidget {
     );
   }
 
-  void _onSignUpPressed() {
-    // 회원가입 버튼 클릭 시 실행할 내용 작성
-    print('회원가입 버튼 클릭');
+  void _onSignUpPressed(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SignUpPage()));
   }
 
   @override
@@ -43,7 +44,7 @@ class MobileLayout extends StatelessWidget {
             child: const Text('Login')),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: _onSignUpPressed,
+          onPressed: () => _onSignUpPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromARGB(198, 111, 128, 255),
             minimumSize: const Size(120, 50),
