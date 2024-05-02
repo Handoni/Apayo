@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/login_page.dart';
+import 'package:frontend/signUp_page.dart';
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
@@ -11,9 +12,9 @@ class DesktopLayout extends StatelessWidget {
     );
   }
 
-  void _onSignUpPressed() {
-    // 회원가입 버튼 눌렀을 때 로직 추가
-    print('회원가입 버튼 클릭');
+  void _onSignUpPressed(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SignUpPage()));
   }
 
   @override
@@ -70,7 +71,7 @@ class DesktopLayout extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: _onSignUpPressed,
+                    onPressed: () => _onSignUpPressed(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(198, 111, 128, 255),
                       minimumSize: const Size(120, 50),
