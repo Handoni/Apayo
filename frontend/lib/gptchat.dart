@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/select_card.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GptPage extends StatefulWidget {
   const GptPage({super.key});
@@ -47,8 +48,11 @@ class _GptPageState extends State<GptPage> {
     // 백엔드로 POST 요청 보내기
     http.Response response = await http.post(
       Uri.parse(
-          'http://127.0.0.1:8000/primary_disease_predicton'), // 백엔드 URL. 아직 안 넣음.
-      body: {'symptoms': text}, // POST 요청의 바디 (메시지 데이터)
+          'http://127.0.0.1:8000/primary_disease_prediction/'), // 백엔드 URL. 아직 안 넣음.
+      headers: {
+        'Content-Type': 'application/json' // 요청 헤더
+      },
+      body: jsonEncode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
     );
 
     if (response.statusCode == 200) {
