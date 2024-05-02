@@ -1,7 +1,7 @@
 from app.api.schemas.primary_disease_prediction import *
+from app.api.schemas.secondary_disease_prediction import *
 
-
-def parse_gpt_response(response: str) -> list:
+def parse_primary_response(response: str) -> list:
     if "no symptoms" in response.lower():
         return None
 
@@ -29,3 +29,19 @@ def parse_gpt_response(response: str) -> list:
         )
 
     return symptoms, question
+
+def create_secondary_input(input_data: SecondaryDiseasePredictionRequest) -> str:
+    data = input_data.data
+
+    result = ""
+    for i in data:
+        result += f"{i.questions.disease.name}({i.questions.disease.code}):["
+        for j in i.responses:
+            result += f"{j.question.symptoms}:{j.response}, "
+        result = result[:-2]
+        result += "]\n"
+
+    return result
+
+def parse_secondary_response(response: str) -> list:
+    pass

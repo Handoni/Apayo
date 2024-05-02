@@ -10,7 +10,7 @@ from app.main import app
 async def test_analyze_symptoms():
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.post(
-            "/disease_prediction/",
-            json={"id": 0, "symptoms": "두통(headache), 열(fever)"},
+            "/primary_disease_prediction/",
+            json={"symptoms": "두통(headache), 열(fever)"},
         )
         assert response.status_code == 200

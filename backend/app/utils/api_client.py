@@ -4,7 +4,7 @@ from openai import OpenAI
 from app.core.prompt import *
 
 
-async def get_gpt_response(input_data, system_message):
+async def get_gpt_response(input_data:str, system_message:str):
     settings = get_settings()
     GPT_API_KEY = settings.gpt_api_key
     MODEL = "gpt-3.5-turbo"
