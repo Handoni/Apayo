@@ -35,7 +35,7 @@ class MyHomePage extends StatelessWidget {
             )
           ],
         ),
-        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         toolbarHeight: 70,
         titleSpacing: 50, //앱바 왼쪽 간격추가
       ),

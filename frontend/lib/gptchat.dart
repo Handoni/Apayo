@@ -17,6 +17,12 @@ class SessionData {
       required this.questions});
 }
 
+class ResultData {
+  // 최종 결과
+
+  ResultData();
+}
+
 class GptPage extends StatefulWidget {
   const GptPage({super.key});
 
@@ -25,17 +31,15 @@ class GptPage extends StatefulWidget {
 }
 
 class _GptPageState extends State<GptPage> {
-  // 백에 증상 채팅 입력 보내고 처리.
-  Future<SessionData?> responseSymptom() async {
-    String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
-    _chatControlloer.clear(); // 텍스트 필드 클리어
+  Future<ResultData?> finalselect() async {
+    // 최종 결과를 위해 백에 요청.
+
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
         Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
-        body: json.encode(
-            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
+        body: json.encode({}), // POST 요청의 바디 (메시지 데이터)
       );
 
       if (response.statusCode == 200) {
@@ -53,15 +57,53 @@ class _GptPageState extends State<GptPage> {
         }
 
         // 응답 데이터를 사용하여 SessionData 객체를 생성
+        // var resultData = ResultData(
+        //     sessionId: jsonResponse['session_id'],
+        //     symptoms: List<String>.from(jsonResponse['symptoms']),
+        //     questions: questions);
+        // 생성된 SessionData 객체를 반환
+        // return resultData;
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+    } catch (e) {
+      print('Caught an error: $e');
+    }
+    return null;
+  }
+
+  // 백에 증상 채팅 입력 보내고 처리.
+  Future<SessionData?> responseSymptom() async {
+    String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
+    _chatControlloer.clear(); // 텍스트 필드 클리어
+    // 백엔드로 POST 요청 보내기
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/'),
+        headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
+        body: json.encode(
+            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답 성공 확인
+        recieveResult = true; // 결과 반환 true
+        // 서버의 응답에서 JSON 데이터를 파싱
+        var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+
+        // 질문 각각 추출, 응답에서 "questions"를 추출하여 Map에 저장
+        Map<String, String> questions = {};
+        if (jsonResponse['questions'] != null) {
+          jsonResponse['questions'].forEach((key, value) {
+            questions[key] = value.toString();
+          });
+        }
+
+        // 응답 데이터를 사용하여 SessionData 객체를 생성
         var sessionData = SessionData(
             sessionId: jsonResponse['session_id'],
             symptoms: List<String>.from(jsonResponse['symptoms']),
             questions: questions);
-
-        // Optionally print or return session data
-        // print('Session ID: ${sessionData.sessionId}');
-        // print('Symptoms: ${sessionData.symptoms}');
-        // print('Questions: ${sessionData.questions}');
 
         // 생성된 SessionData 객체를 반환
         return sessionData;
@@ -108,10 +150,6 @@ class _GptPageState extends State<GptPage> {
 
   List<String> userSymptomChat = []; // 사용자의 채팅입력(증상)
   final TextEditingController _chatControlloer = TextEditingController();
-
-  void finalResult() {
-    recieveResult = true;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +208,6 @@ class _GptPageState extends State<GptPage> {
                           ],
                         ),
                       ),
-
                       Column(
                         children: [
                           if (selectedCard) // 선지가 생성됐을 때 출력.
@@ -188,13 +225,13 @@ class _GptPageState extends State<GptPage> {
                         // 선지 선택 카드
                         flex: 8,
                         // Expanded 위젯을 사용하여 Column 내에서 GridView가 차지할 공간을 유동적으로 할당
-
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2, // 한 줄에 2개의 카드 배치
+                            childAspectRatio: 3 / 1, //item 의 가로 세로의 비율
                             crossAxisSpacing: 10, // 카드 간 가로 간격
-                            mainAxisSpacing: 50, // 카드 간 세로 간격
+                            mainAxisSpacing: 10, // 카드 간 세로 간격
                           ),
                           itemCount: contents.length,
                           itemBuilder: (context, index) {
@@ -218,8 +255,8 @@ class _GptPageState extends State<GptPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,
                                   ),
-                                  key: nextKey, // 버튼이 변경될 때마다 새 키 사용
-                                  onPressed: () {},
+                                  //key: nextKey, // 버튼이 변경될 때마다 새 키 사용
+                                  onPressed: finalselect, // 최종 선택을 백으로 전송
                                   child: const Text(
                                     '진단 받아보기 >',
                                     style: TextStyle(
