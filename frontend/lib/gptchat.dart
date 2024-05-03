@@ -1,7 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'widgets/result_card.dart';
 import 'widgets/select_card.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+class SessionData {
+  final String sessionId;
+  final List<String> symptoms;
+  final Map<String, String> questions;
+
+  SessionData(
+      {required this.sessionId,
+      required this.symptoms,
+      required this.questions});
+}
 
 class GptPage extends StatefulWidget {
   const GptPage({super.key});
@@ -11,27 +25,79 @@ class GptPage extends StatefulWidget {
 }
 
 class _GptPageState extends State<GptPage> {
+  // 백에 증상 채팅 입력 보내고 처리.
+  Future<SessionData?> responseSymptom() async {
+    String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
+
+    // 백엔드로 POST 요청 보내기
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/'),
+        body: {'symptoms': text}, // POST 요청의 바디 (메시지 데이터)
+      );
+
+      if (response.statusCode == 200) {
+        // 서버 응답 성공 확인
+
+        // 서버의 응답에서 JSON 데이터를 파싱
+        var jsonResponse = jsonDecode(response.body);
+
+        // 질문 각각 추출, 응답에서 "questions"를 추출하여 Map에 저장
+        Map<String, String> questions = {};
+        if (jsonResponse['questions'] != null) {
+          jsonResponse['questions'].forEach((key, value) {
+            questions[key] = value.toString();
+          });
+        }
+
+        // 응답 데이터를 사용하여 SessionData 객체를 생성
+        var sessionData = SessionData(
+            sessionId: jsonResponse['session_id'],
+            symptoms: List<String>.from(jsonResponse['symptoms']),
+            questions: questions);
+
+        // Optionally print or return session data
+        // print('Session ID: ${sessionData.sessionId}');
+        // print('Symptoms: ${sessionData.symptoms}');
+        // print('Questions: ${sessionData.questions}');
+
+        // 생성된 SessionData 객체를 반환
+        return sessionData;
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+    } catch (e) {
+      print('Caught an error: $e');
+    }
+    return null;
+  }
+
+  _sendMessage() async {
+    // 단순히 맨 위에 입력한 증상 띄움. + 백에 전송.
+    setState(() {
+      String text = _chatControlloer.text;
+      userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
+      _chatControlloer.clear(); // 텍스트 필드 클리어
+    });
+    SessionData? sessionData = await responseSymptom();
+    updateData(sessionData);
+  }
+
   bool selectedCard = false; // 선지가 생성됐는지
   bool recieveResult = false; // 결과가 도착했는지
   Key nextKey = UniqueKey(); // 다음으로 이동
 
-  List<String> contents = [
-    // test용, 백이랑 연동해보고 삭제.
-    // 생성될 선지 버튼
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
+  List<String> contents = [];
 
-  void updateData() {
+  void updateData(SessionData? sessionData) {
     // 백엔드에서 데이터를 받는 것을 시뮬레이션
-    List<String> newData = [
-      "New Item 1",
-      "New Item 2",
-      "New Item 3"
-    ]; // 새로운 데이터 리스트
+    List<String> newData = []; // 새로운 데이터 리스트
+    if (sessionData != null) {
+      sessionData.questions.forEach((key, value) {
+        newData.add(value.toString());
+      });
+    }
+
     setState(() {
       contents = newData; // 기존 데이터를 새 데이터로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
@@ -41,31 +107,6 @@ class _GptPageState extends State<GptPage> {
 
   List<String> userSymptomChat = []; // 사용자의 채팅입력(증상)
   final TextEditingController _chatControlloer = TextEditingController();
-
-  // 메시지 전송 함수
-  void _sendMessage() async {
-    String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
-    // 백엔드로 POST 요청 보내기
-    http.Response response = await http.post(
-      Uri.parse(
-          'http://127.0.0.1:8000/primary_disease_prediction/'), // 백엔드 URL. 아직 안 넣음.
-      headers: {
-        'Content-Type': 'application/json' // 요청 헤더
-      },
-      body: jsonEncode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
-    );
-
-    if (response.statusCode == 200) {
-      // 서버 응답 성공 확인
-      setState(() {
-        userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
-        _chatControlloer.clear(); // 텍스트 필드 클리어
-      });
-    } else {
-      // 에러 처리 로직
-      print("서버 응답 실패");
-    }
-  }
 
   void finalResult() {
     recieveResult = true;
@@ -128,12 +169,15 @@ class _GptPageState extends State<GptPage> {
                           ],
                         ),
                       ),
+
                       Column(
                         children: [
                           if (selectedCard) // 선지가 생성됐을 때 출력.
-                            const Text("아래 해당되는 항목을 눌러보세요!",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w900)),
+                            const Text(
+                              "아래 해당되는 항목을 눌러보세요!",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w900),
+                            ),
                         ],
                       ),
                       const SizedBox(
@@ -143,6 +187,7 @@ class _GptPageState extends State<GptPage> {
                         // 선지 선택 카드
                         flex: 8,
                         // Expanded 위젯을 사용하여 Column 내에서 GridView가 차지할 공간을 유동적으로 할당
+
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
@@ -160,12 +205,11 @@ class _GptPageState extends State<GptPage> {
                         ),
                       ),
                       Expanded(
-                        // 다음페이지 이동 버튼
+                        // 진단 받기 버튼
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            // if (selectedCard)  // 백이랑 합치고 주석 해제.
-                            // (
+                            //if (selectedCard) // 백이랑 합치고 주석 해제.
                             if (!recieveResult) // 최종 결과 안 나올 때까지
                               (AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
@@ -174,7 +218,7 @@ class _GptPageState extends State<GptPage> {
                                     backgroundColor: Colors.black,
                                   ),
                                   key: nextKey, // 버튼이 변경될 때마다 새 키 사용
-                                  onPressed: updateData,
+                                  onPressed: () {},
                                   child: const Text(
                                     '진단 받아보기 >',
                                     style: TextStyle(
@@ -183,9 +227,7 @@ class _GptPageState extends State<GptPage> {
                                     ),
                                   ),
                                 ),
-                              ))
-                            // )
-                            ,
+                              )),
                           ],
                         ),
                       ),
