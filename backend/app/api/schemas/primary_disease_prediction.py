@@ -6,7 +6,7 @@ def generate_uuid() -> str:
     return str(uuid4())
 
 #사용자가 입력한 증상
-class User_Symptom_Input(BaseModel):
+class UserSymptomInput(BaseModel):
     user_id: str
     symptoms: str
 

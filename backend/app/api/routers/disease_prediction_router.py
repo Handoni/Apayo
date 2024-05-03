@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.api.schemas.primary_disease_prediction import (
-    User_Symptom_Input,
+    UserSymptomInput,
     PrimaryDiseasePredictionResponse,
 )
 from app.api.schemas.secondary_disease_prediction import SecondaryDiseasePredictionRequest
@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post("/primary_disease_prediction/", response_model=PrimaryDiseasePredictionResponse)
-async def disease_prediction_endpoint(input_data: User_Symptom_Input):
+async def disease_prediction_endpoint(input_data: UserSymptomInput):
     return await primary_disease_prediction(input_data)
 
 @router.post("/secondary_disease_prediction/")

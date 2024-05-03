@@ -7,7 +7,7 @@ from app.utils.api_client import get_gpt_response
 from app.api.schemas.disease_prediction_session import DiseasePredictionSession
 from app.services.firebase_service import store_user_session
 
-async def primary_disease_prediction(input_data: User_Symptom_Input):
+async def primary_disease_prediction(input_data: UserSymptomInput):
     response = await get_gpt_response(
         input_data.symptoms, PRIMARY_DISEASE_PREDICTION_PROMPT
     )
