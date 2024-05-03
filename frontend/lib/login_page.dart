@@ -5,9 +5,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginPage extends StatelessWidget {
+  LoginPage({Key? key}) : super(key: key);
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  LoginPage({Key? key}) : super(key: key);
 
   void loginUser(BuildContext context) async {
     String userName = _userNameController.text;
@@ -29,8 +29,8 @@ class LoginPage extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        // 로그인 성공
-        // 이후 처리...
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => GptPage()));
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
