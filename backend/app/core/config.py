@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     )
     gpt_api_key: str
     gpt_api_url: str = "https://api.openai.com/v4/completions"
+    google_application_credentials: str
 
 
 def get_settings() -> Settings:

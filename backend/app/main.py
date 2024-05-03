@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.api.routers.disease_prediction_router import router as api_router
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from firebase_admin import credentials, initialize_app
+from app.core.config import get_settings
 
 app = FastAPI()
 
@@ -14,5 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+Settings = get_settings()
+
+cred = credentials.Certificate(Settings.google_application_credentials)
+
+
 if __name__ == "__main__":
+    initialize_app(cred)
     uvicorn.run(app, host="127.0.0.1", port=8000)
