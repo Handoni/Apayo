@@ -28,19 +28,21 @@ class _GptPageState extends State<GptPage> {
   // 백에 증상 채팅 입력 보내고 처리.
   Future<SessionData?> responseSymptom() async {
     String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
-
+    _chatControlloer.clear(); // 텍스트 필드 클리어
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
         Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/'),
-        body: {'symptoms': text}, // POST 요청의 바디 (메시지 데이터)
+        headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
+        body: json.encode(
+            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
       );
 
       if (response.statusCode == 200) {
         // 서버 응답 성공 확인
 
         // 서버의 응답에서 JSON 데이터를 파싱
-        var jsonResponse = jsonDecode(response.body);
+        var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
 
         // 질문 각각 추출, 응답에서 "questions"를 추출하여 Map에 저장
         Map<String, String> questions = {};
@@ -77,7 +79,6 @@ class _GptPageState extends State<GptPage> {
     setState(() {
       String text = _chatControlloer.text;
       userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
-      _chatControlloer.clear(); // 텍스트 필드 클리어
     });
     SessionData? sessionData = await responseSymptom();
     updateData(sessionData);
