@@ -3,16 +3,27 @@ from app.api.schemas.primary_disease_prediction import (
     UserSymptomInput,
     PrimaryDiseasePredictionResponse,
 )
-from app.api.schemas.secondary_disease_prediction import SecondaryDiseasePredictionRequest
-from app.services.gpt_service import *
+from app.api.schemas.secondary_disease_prediction import (
+    UserQuestionResponse,
+    SecondaryDiseasePredictionResponse,
+)
+from app.services.gpt_service import (
+    primary_disease_prediction,
+    secondary_disease_prediction,
+)
 
 router = APIRouter()
 
 
-@router.post("/primary_disease_prediction/", response_model=PrimaryDiseasePredictionResponse)
+@router.post(
+    "/primary_disease_prediction/", response_model=PrimaryDiseasePredictionResponse
+)
 async def disease_prediction_endpoint(input_data: UserSymptomInput):
     return await primary_disease_prediction(input_data)
 
-@router.post("/secondary_disease_prediction/")
-async def secondary_disease_prediction_endpoint(input_data: SecondaryDiseasePredictionRequest):
+
+@router.post(
+    "/secondary_disease_prediction/", response_model=SecondaryDiseasePredictionResponse
+)
+async def secondary_disease_prediction_endpoint(input_data: UserQuestionResponse):
     return await secondary_disease_prediction(input_data)
