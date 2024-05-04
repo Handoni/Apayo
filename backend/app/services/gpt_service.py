@@ -1,4 +1,4 @@
-from app.api.schemas.primary_disease_prediction import UserSymptomInput, Symptom
+from app.api.schemas.primary_disease_prediction import UserSymptomInput
 from app.api.schemas.secondary_disease_prediction import UserQuestionResponse
 from app.utils.data_processing import (
     parse_primary_response,
@@ -25,10 +25,9 @@ async def primary_disease_prediction(input_data: UserSymptomInput):
         raise HTTPException(status_code=404, detail="failed to find symptoms")
 
     session = SessionManager.create_session(user_id=input_data.user_id)
-    session.primary_symptoms = [Symptom(description=symptom) for symptom in response[0]]
+    session.primary_symptoms = response[0]
     session.primary_diseases = response[1]
     session.primary_questions = response[2]
-
     # Update session with new data
     SessionManager.update_session(
         session.session_id,

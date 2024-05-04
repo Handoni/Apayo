@@ -1,15 +1,12 @@
 from pydantic import BaseModel, Field
 from app.api.schemas.primary_disease_prediction import (
-    Symptom,
-    Disease,
-    DiseaseRelatedQuestions,
     PrimaryDiseasePredictionResponse,
 )
 from app.api.schemas.secondary_disease_prediction import (
     UserSymptomResponse,
     PredictedDisease,
 )
-from typing import List
+from typing import List, Dict
 from uuid import uuid4
 from datetime import datetime
 
@@ -24,9 +21,9 @@ class DiseasePredictionSession(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    primary_symptoms: List[Symptom] = []
-    primary_diseases: List[Disease] = []
-    primary_questions: List[DiseaseRelatedQuestions] = []
+    primary_symptoms: Dict[str, str] = {}  # 증상ID:증상내용
+    primary_diseases: Dict[str, str] = {}  # 질병 코드:질병 이름
+    primary_questions: Dict[str, Dict[str, str]] = {}  # 질병 코드:{질문ID:질문내용}
 
     secondary_symptoms: List[UserSymptomResponse] = []
 
@@ -37,10 +34,10 @@ class DiseasePredictionSession(BaseModel):
     ) -> PrimaryDiseasePredictionResponse:
         return PrimaryDiseasePredictionResponse(
             session_id=self.session_id,
-            symptoms=[symptom.description for symptom in self.primary_symptoms],
+            symptoms=list(self.primary_symptoms.values()),
             questions={
-                symptom.id: symptom.description
-                for question in self.primary_questions
-                for symptom in question.questions
+                k: v
+                for disease in self.primary_questions.values()
+                for k, v in disease.items()
             },
         )
