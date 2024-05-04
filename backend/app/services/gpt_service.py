@@ -25,16 +25,14 @@ async def primary_disease_prediction(input_data: UserSymptomInput):
         raise HTTPException(status_code=404, detail="failed to find symptoms")
 
     session = SessionManager.create_session(user_id=input_data.user_id)
-    session.primary_symptoms = response[0]
-    session.primary_diseases = response[1]
-    session.primary_questions = response[2]
+
     # Update session with new data
     SessionManager.update_session(
         session.session_id,
         {
-            "primary_symptoms": session.primary_symptoms,
-            "primary_diseases": session.primary_diseases,
-            "primary_questions": session.primary_questions,
+            "primary_symptoms": response[0],
+            "primary_diseases": response[1],
+            "primary_questions": response[2],
         },
     )
 
@@ -54,13 +52,11 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
     if not response:
         raise HTTPException(status_code=404, detail="failed to get response")
 
-    # Assume some data processing and updating the session
-    # For example:
-    session.assign_secondary_symptoms(
-        {resp.question_id: resp.response for resp in input_data.responses}
-    )
     SessionManager.update_session(
-        session.session_id, {"secondary_symptoms": session.secondary_symptoms}
+        session.session_id,
+        {
+            "secondary_symptoms": input_data,
+            "final_diseases": response,
+        },
     )
-
-    return
+    return response

@@ -39,6 +39,7 @@ class SessionManager:
 
         session_ref = db.collection("disease_prediction_sessions").document(session_id)
         session_data = session_ref.get().to_dict()
+        print(session_data)
         if session_data:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session

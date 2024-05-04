@@ -1,7 +1,11 @@
 import re
-from app.api.schemas.secondary_disease_prediction import UserQuestionResponse
+from app.api.schemas.secondary_disease_prediction import (
+    UserQuestionResponse,
+)
 from app.services.firebase_service import SessionManager
 from uuid import uuid4
+from fastapi import HTTPException
+from app.api.schemas.secondary_disease_prediction import PredictedDisease
 
 
 def parse_primary_response(response: str) -> list:
@@ -9,6 +13,8 @@ def parse_primary_response(response: str) -> list:
         return None
     responses = re.split(r"\n+", response)
     print(responses)
+    if len(responses) != 3:
+        raise HTTPException(status_code=404, detail="Invalid response")
 
     symptoms = {
         str(uuid4()): _.strip() for _ in responses[0].replace("1.", "").split("|")
@@ -42,11 +48,38 @@ def parse_primary_response(response: str) -> list:
 def create_secondary_input(input_data: UserQuestionResponse) -> str:
     result = ""
     session = SessionManager.get_session(input_data.session_id)
-    primary_questions = session.primary_questions
-    for id, response in input_data.responses:
-        question = session.primary_questions[id]
-        result += f"{question.disease.name} {response} "
+    result += ", ".join(session.primary_symptoms.values())
+    result += "\n"
+    result += ", ".join(
+        ["{}:{}".format(k, v) for k, v in session.primary_diseases.items()]
+    )
+    result += "\n"
+
+    merged_questions = {}
+    for questions in session.primary_questions.values():
+        merged_questions.update(questions)
+    temp = []
+    for id, response in input_data.responses.items():
+        if id not in merged_questions:
+            raise HTTPException(status_code=404, detail="Question not found")
+        temp.append(f"{merged_questions[id]}:{response}")
+
+    result += ", ".join(temp)
+
+    return result
 
 
-def parse_secondary_response(response: str) -> list:
-    pass
+def parse_secondary_response(response: str) -> list[PredictedDisease]:
+    response = re.split(r"\n+", response)
+    print(response)
+    if len(response) > 2 or len(response) < 1:
+        raise HTTPException(status_code=404, detail="Invalid response")
+    result = {}
+    for i in response:
+        temp = i.split("|")
+        result = PredictedDisease(
+            Disease=temp[0].strip(),
+            recommended_department=temp[1].strip(),
+            description=temp[2].strip(),
+        )
+    return result

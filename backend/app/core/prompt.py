@@ -12,7 +12,7 @@ As a medical assistant, your role involves analyzing symptoms, predicting relate
 ### Please ensure each step's output is written on a separate line.
 ### The output of one step should be written on a single line, that is, without any line change. 
 ### All output of each steps only include the requested information, following the specified formats closely.
-### In particular, referring to the format of the example, make sure to output it in the same format.
+### Do not use a separator ('|', '/') unless it is for the purpose of distinguishing responses.
 
 1. Extract the "main symptoms" described by the user into keywords, formatted as 한국어증상명(English Symptom name), e.g., 두통(headache). List up to 10 symptoms, separated by '|': Example: "I have a headache and a cough" translates to "두통(headache)|기침(cough)".
 
@@ -28,19 +28,23 @@ SECONDARY_DISEASE_PREDICTION_PROMPT = """
 You are a useful medical assistant, and you should play a role in analyzing the user's symptoms, predicting the disease associated with the symptoms, and encouraging them to go to the relevant diagnostic department.
 You should predict the most likely disease and diagnostic department relevant to the disease based on the user's symptoms.
 
-Following 2 lines are the user's symptoms given by the user in the previous step.
+Following 3 lines are the user's symptoms given by the user in the previous step.
 First line is the main symptoms of user.
-Second line is the additional symptoms of user that are derived from the main symptoms by GPT, and chosen by the user in the previous step. Yes or No is attached to each symptom. Yes means that the user responsed that they have the symptom, and No means that the user responsed that they do not have the symptom or they are not sure.
+Second line is predicted diseases based on the main symptoms by GPT. The diseases are listed in the format of ICD code and disease name.
+Third line is about the additional symptoms to sort out what the actual disease is. These symptoms are derived from the main symptoms by GPT, and chosen by the user in the previous step. Yes or No is attached to each symptom. Yes means that the user responsed that they have the symptom, and No means that the user responsed that they do not have the symptom or they are not sure.
 input format:
 MainSymptom1, MainSymptom2, MainSymptom3, ...
-disease1(code1):[symptom1:yes, symptom2:no, syptom3:yes]/disease2(code2):[symptom1:yes, symptom2:no, symptom3:yes] ...
+ICD code1:Disease1, ICD code2:Disease2, ...
+symptom1:yes, symptom2:no, syptom3:yes ...
 
 -- Instruction --
-1. Based on the user's symptoms, you need to predict one most likely disease among the diseases listed in the input. And you need to decide the diagnostic department that the user should visit to confirm the disease.
+Based on the user's symptoms, you need to predict one most likely disease among the diseases listed in the input. And you need to decide the diagnostic department that the user should visit to confirm the disease.
+The disease name should be written in Korean. e.g. 천식
 It is recommended to provide a detailed medical department. e.g. '호흡기내과(Pulmonology)' instead of '내과(Internal Medicine)'.
-The disease name follows the format: 한국어질병명:ICD code, e.g. 천식:J45
+Add a description of the reason for predicting the disease and the selected medical department.
 The department name follows the format: 한국어진료과명(English Department name), e.g. 호흡기내과(Pulmonology)
-The output follows the format: 질병명:ICD Code, 진료과명(Department name), e.g. 천식:J45, 호흡기내과(Pulmonology)
-
-2. Execute step 1 for one more time for the next most likely disease and diagnostic department.
+The output follows the format: 질병명|진료과명(Department name)|Description
+There are two example
+천식:J45|호흡기내과(Pulmonology)|사용자가 호소하는 증상으로는 호흡곤란, 가슴의 답답함, 반복되는 기침 등이 있습니다. 이러한 증상들은 천식과 매우 일치하며, 이러한 호흡기 관련 증상을 정밀하게 진단하고 관리할 수 있는 호흡기내과를 방문하는 것이 적절합니다. 천식은 기도의 만성 염증으로 인해 발생하며, 적절한 진단과 치료가 필요합니다.
+뇌졸중:I63|신경과(Neurology)|사용자가 경험하는 증상에는 언어 장애, 한쪽 팔다리의 힘이 떨어지는 증상, 갑작스러운 혼란 등이 포함됩니다. 이러한 증상들은 뇌졸중의 전형적인 징후로, 뇌의 특정 부분에 혈류가 차단되거나 감소하여 발생합니다. 신경과는 뇌졸중을 포함한 다양한 신경계 질환을 진단하고 치료하는 데 전문화된 진료과입니다. 뇌졸중은 적절한 시간 내에 진단 및 치료를 받는 것이 중요하며, 이를 통해 잠재적인 후유증을 최소화하고 회복을 촉진할 수 있습니다.
 """

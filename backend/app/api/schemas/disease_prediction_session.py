@@ -3,10 +3,10 @@ from app.api.schemas.primary_disease_prediction import (
     PrimaryDiseasePredictionResponse,
 )
 from app.api.schemas.secondary_disease_prediction import (
-    UserSymptomResponse,
     PredictedDisease,
+    UserQuestionResponse,
 )
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import uuid4
 from datetime import datetime
 
@@ -25,9 +25,9 @@ class DiseasePredictionSession(BaseModel):
     primary_diseases: Dict[str, str] = {}  # 질병 코드:질병 이름
     primary_questions: Dict[str, Dict[str, str]] = {}  # 질병 코드:{질문ID:질문내용}
 
-    secondary_symptoms: List[UserSymptomResponse] = []
+    secondary_symptoms: UserQuestionResponse = None
 
-    final_diseases: List[PredictedDisease] = []
+    final_diseases: PredictedDisease = None
 
     def prepare_primary_disease_prediction_response(
         self,
