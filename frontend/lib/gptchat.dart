@@ -214,7 +214,9 @@ class _GptPageState extends State<GptPage> {
                           ],
                         ),
                       ),
-
+                      const SizedBox(
+                        height: 10,
+                      ),
                       Column(
                         children: [
                           if (selectedCard) // 선지가 생성됐을 때 출력.
@@ -241,8 +243,9 @@ class _GptPageState extends State<GptPage> {
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2, // 한 줄에 카드 2개씩 배치
-                                    crossAxisSpacing: 10, // 카드 간 가로 간격
-                                    mainAxisSpacing: 50, // 카드 간 세로 간격
+                                    childAspectRatio: 5 / 1, //item 의 가로 세로의 비율
+                                    crossAxisSpacing: 25, // 카드 간 가로 간격
+                                    mainAxisSpacing: 25, // 카드 간 세로 간격
                                   ),
                                   itemCount: contents.length,
                                   itemBuilder: (context, index) {

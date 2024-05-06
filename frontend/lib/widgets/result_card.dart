@@ -27,7 +27,7 @@ class ResultCard extends StatelessWidget {
                 '    진단 결과를 알려드릴게요!',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
@@ -55,7 +55,8 @@ class ResultCard extends StatelessWidget {
                 // 결과
                 children: [
                   Text(
-                    '예상 질병 $n 순위 : $disease\n',
+                    //'예상 질병 $n 순위 : $disease\n',
+                    '예상 질병이나 증상 : $disease\n',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -69,7 +70,7 @@ class ResultCard extends StatelessWidget {
                     '추천 진료과 : $dept',
                     style: const TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   )
                 ],

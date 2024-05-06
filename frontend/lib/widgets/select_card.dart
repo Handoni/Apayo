@@ -37,7 +37,8 @@ class SelectCardState extends State<SelectCard> {
           padding: const EdgeInsets.all(30),
           child: Column(
             // 세로축 기준으로 텍스트를 왼쪽 정렬
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 항목 내용 표시
               Text(
@@ -46,7 +47,7 @@ class SelectCardState extends State<SelectCard> {
                   // 스타일 조건부 적용
                   color: Colors.black,
                   fontSize: 20,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
