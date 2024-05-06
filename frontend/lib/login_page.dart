@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
     String password = _passwordController.text;
 
     // 로그인 요청을 보낼 URL
-    Uri url = Uri.parse('메롱메롱메롱..');
+    Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
 
     // 요청 본문에 포함될 데이터
     Map<String, dynamic> requestBody = {
@@ -27,21 +27,20 @@ class LoginPage extends StatelessWidget {
         body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => GptPage()));
+            context, MaterialPageRoute(builder: (context) => const GptPage()));
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('로그인에 실패했습니다.')),
+          const SnackBar(content: Text('로그인에 실패했습니다.')),
         );
       }
     } catch (e) {
       // 요청 실패
       print('Error during login: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('로그인에 오류가 발생했습니다. 다시 시도해주세요.')),
+        const SnackBar(content: Text('로그인에 오류가 발생했습니다. 다시 시도해주세요.')),
       );
     }
   }
@@ -135,7 +134,7 @@ class LoginPage extends StatelessWidget {
                             obscureText: true, // 비번 가리기
                           ),
                           // 로그인 버튼 *******************************
-                          SizedBox(height: screenHeight * 0.06),
+                          SizedBox(height: screenHeight * 0.07),
                           SizedBox(
                             width: formFieldWidth,
                             child: ElevatedButton(
