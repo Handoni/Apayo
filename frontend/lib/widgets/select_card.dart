@@ -2,37 +2,38 @@ import 'package:flutter/material.dart';
 
 class SelectCard extends StatefulWidget {
   final String content;
-  final int order;
-
   const SelectCard({
     super.key,
     required this.content, // 항목 내용
-    required this.order, // 위젯 배치 순서
   });
 
   @override
-  State<SelectCard> createState() => _SelectCardState();
+  State<SelectCard> createState() => SelectCardState();
 }
 
-class _SelectCardState extends State<SelectCard> {
+const greybackground = Color(0xffD9D9D9);
+const _invertedColor = Color(0xffC2F7C1);
+
+class SelectCardState extends State<SelectCard> {
   bool _isInverted = false; // 선지를 선택했을 때.
 
-  // 반전되지 않은 텍스트와 요소에 사용될 상수 색상을 정의합니다.
-  final greybackground = const Color(0xffD9D9D9);
-  final _invertedColor = const Color(0xffC2F7C1);
-
-  void _toggleInvert() {
+  void toggleInvert() {
     setState(() {
       _isInverted = !_isInverted; // isInverted 상태를 토글 (선택 상태 표시)
     });
+  }
+
+  Map<String, String> getFinalSelect() {
+    return {widget.content: _isInverted ? "yes" : "no"};
   }
 
   // 위젯의 빌드 메서드를 오버라이드합니다.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _toggleInvert, // 카드 탭 시 _toggleInvert 함수 호출
+      onTap: toggleInvert, // 카드 탭 시 _toggleInvert 함수 호출
       child: Container(
+        height: 50,
         decoration: BoxDecoration(
           // 카드의 색상은 isInverted가 true일 때(마우스 선택)는 연두, 아니면 _blackColor 사용
           color: _isInverted ? _invertedColor : greybackground,
@@ -44,8 +45,7 @@ class _SelectCardState extends State<SelectCard> {
           padding: const EdgeInsets.all(30),
           child: Column(
             // 세로축 기준으로 텍스트를 왼쪽 정렬
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 항목 내용 표시
               Text(
@@ -53,7 +53,7 @@ class _SelectCardState extends State<SelectCard> {
                 style: const TextStyle(
                   // 스타일 조건부 적용
                   color: Colors.black,
-                  fontSize: 23,
+                  fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
               ),
