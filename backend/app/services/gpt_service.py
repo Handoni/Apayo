@@ -7,7 +7,9 @@ from app.utils.data_processing import (
 )
 from fastapi import HTTPException
 from app.core.prompt import (
-    PRIMARY_DISEASE_PREDICTION_PROMPT,
+    PRIMARY_DISEASE_PREDICTION_PROMPT1,
+    PRIMARY_DISEASE_PREDICTION_PROMPT2,
+    PRIMARY_DISEASE_PREDICTION_PROMPT3,
     SECONDARY_DISEASE_PREDICTION_PROMPT,
 )
 from app.utils.api_client import get_gpt_response
@@ -16,11 +18,15 @@ from app.services.firebase_service import SessionManager
 
 
 async def primary_disease_prediction(input_data: UserSymptomInput):
-    response = await get_gpt_response(
-        input_data.symptoms, PRIMARY_DISEASE_PREDICTION_PROMPT
+    response1 = await get_gpt_response(
+        input_data.symptoms, PRIMARY_DISEASE_PREDICTION_PROMPT1
     )
+    response2 = await get_gpt_response(response1, PRIMARY_DISEASE_PREDICTION_PROMPT2)
+    input3 = "User Symptom: " + response1 + " " + "Disease: " + response2
 
-    response = parse_primary_response(response)
+    response3 = await get_gpt_response(input3, PRIMARY_DISEASE_PREDICTION_PROMPT3)
+
+    response = parse_primary_response(response1 + "\n" + response2 + "\n" + response3)
     if not response:
         raise HTTPException(status_code=404, detail="failed to find symptoms")
 

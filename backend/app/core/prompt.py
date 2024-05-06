@@ -22,6 +22,35 @@ As a medical assistant, your role involves analyzing symptoms, predicting relate
 
 
 """ '''
+
+PRIMARY_DISEASE_PREDICTION_PROMPT1 = """
+As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
+This is first step of the process. Carefully follow these instructions:
+Convert user-described "main symptoms" into a list of keywords.
+Use the format Korean symptom name (English Symptom Name), e.g., 두통(headache).
+List no more than 10 symptoms, separated by '|'.
+Example format for "I have a headache and a cough" should be: "두통(headache)|기침(cough)".
+"""
+PRIMARY_DISEASE_PREDICTION_PROMPT2 = """
+As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
+This is second step of the process. Carefully follow these instructions:
+Based on the symptoms, identify "3 possible diseases" using the ICD classification.
+Ensure the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions.
+List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)", separated by '|'.
+Avoid vague terms like 'other' or 'unspecified'.
+Input Example: "두통(headache)|기침(cough)"
+Output Example: "J00:감기(cold)|J45:천식(asthma)|...".
+"""
+PRIMARY_DISEASE_PREDICTION_PROMPT3 = """
+As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
+This is third step of the process. Carefully follow these instructions:
+For each disease listed, describe "3 characteristic symptoms".
+Use concise Korean present tense, ensuring these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping within or across diseases.
+Symptoms should be perceivable without medical tests and distinct from the initial symptoms.
+Format as "ICD Code:Disease Name|symptom1|symptom2|symptom3", separating diseases with '/'.
+Input Example: "User Symptom: 두통(headache)|기침(cough), Diseases: J00:감기(cold)|J45:천식(asthma)|..."
+Output Example: "J00:감기|콧물이 난다|기침이 나온다|열이 난다 / J45:천식|쌕쌕거리는 숨소리가 나온다|호흡이 힘들다|가슴이 답답하다 / ...".
+"""
 PRIMARY_DISEASE_PREDICTION_PROMPT = """
 As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments. Carefully follow these instructions:
 
@@ -29,10 +58,16 @@ As a medical assistant, your role involves extracting main symptoms from user de
 - Each line's output should be concise and continuous, without any breaks.
 - Outputs must strictly contain only the requested information, adhering to the specified formats.
 - Do not use delimiters like '|' or '/' unless required to distinguish between responses.
+- (Very important) In particular, refer to the example output and output it in the same format.
 
-1. Symptom Extraction: Convert user-described "main symptoms" into a list of keywords. Format as Korean symptom name (English Symptom Name), e.g., 두통(headache). List no more than 10 symptoms, separated by '|'. For instance, "I have a headache and a cough" should be formatted as: "두통(headache)|기침(cough)".
-2. Disease Prediction: Based on the symptoms, identify "3-5 possible diseases" using the ICD classification. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. List each disease with its ICD code, formatted as "ICD Code":"Disease Name(Disease in English)", separated by '|'. Avoid vague terms like 'other' or 'unspecified'. Example: "J00:감기(cold)|J45:천식(asthma)|...".
-3. Characteristic Symptoms Description: For each disease listed, describe "2-4 characteristic symptoms" using concise Korean present tense, ensuring that these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping with each other within or across diseases. Symptoms should be perceivable without medical tests and distinct from the initial symptoms. Format as "ICD Code:Disease Name|symptom1|symptom2|symptom3", separating diseases with '/'. Example: "J00:감기|콧물이 난다|기침이 나온다|열이 난다 / J45:천식|쌕쌕거리는 숨소리가 나온다|호흡이 힘들다|가슴이 답답하다 / ...".
+1. Convert user-described "main symptoms" into a list of keywords. Format as Korean symptom name (English Symptom Name), e.g., 두통(headache). List no more than 10 symptoms, separated by '|'. For instance, "I have a headache and a cough" should be formatted as: "두통(headache)|기침(cough)".
+2. Based on the symptoms, identify "3 possible diseases" using the ICD classification. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. Never include out-of-form strings. List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)", separated by '|'. Avoid vague terms like 'other' or 'unspecified'. Example: "J00:감기(cold)|J45:천식(asthma)|...".
+3. For each disease listed, describe "3 characteristic symptoms" using concise Korean present tense, ensuring that these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping with each other within or across diseases. Symptoms should be perceivable without medical tests and distinct from the initial symptoms. Format as "ICD Code:Disease Name|symptom1|symptom2|symptom3", separating diseases with '/'. Example: "J00:감기|콧물이 난다|기침이 나온다|열이 난다 / J45:천식|쌕쌕거리는 숨소리가 나온다|호흡이 힘들다|가슴이 답답하다 / ...".
+
+EXAMPLE OUTPUT
+허리통증(Low back pain)
+M54.5:요추부통증(Low back pain)|M51.2:요추간판탈출증(Lumbar disc herniation)|M53.3:요추부골반부질환(Sacrococcygeal disorders)
+M54.5:요추부통증|허리를 움직일 때 통증이 심해진다|앉거나 누워 있을 때 통증이 적다 / M51.2:요추간판탈출증|다리로 통증이 퍼진다|허리를 구부리거나 펴는 것이 힘들다 / M53.3:요추부골반부질환|허리나 엉덩이로 통증이 퍼진다|오래 서 있거나 걷는 것이 힘들다
 """
 
 '''

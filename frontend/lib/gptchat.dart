@@ -26,15 +26,13 @@ class DiseaseInfo {
 }
 
 class ResultData {
-  final String sessionId;
-  final List<String> symptoms;
-  final Map<String, String> questions;
   final List<DiseaseInfo> diseaseInfo;
 
   ResultData(
-      {required this.sessionId,
-      required this.symptoms,
-      required this.questions,
+      {
+      // required this.sessionId,
+      // required this.symptoms,
+      // required this.questions,
       required this.diseaseInfo});
 }
 
@@ -51,6 +49,22 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
+  Map<String, bool> cardSelections = {}; //id:선택여부
+
+  @override
+  void initState() {
+    super.initState();
+    contents.forEach((key, value) {
+      cardSelections[key] = false;
+    });
+  }
+
+  void toggleCardState(String id) {
+    setState(() {
+      cardSelections[id] = !cardSelections[id]!;
+    });
+  }
+
   // 백에 증상 채팅 입력 보내고 처리.
   Future<SessionData?> responseSymptom() async {
     String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
@@ -115,19 +129,22 @@ class _GptPageState extends State<GptPage> {
   bool recieveResult = false; // 결과가 도착했는지
   Key nextKey = UniqueKey(); // 다음으로 이동
 
-  List<String> contents = [];
+  Map<String, String> contents = {}; //ID:값
 
   // 백엔드에서 데이터를 받아서 업데이트
   void updateData(SessionData? sessionData) {
-    List<String> newData = []; // 새로운 데이터 리스트
+    Map<String, String> newData = {}; // 새로운 데이터 리스트
+    Map<String, bool> newCardSelections = {}; // 새로운 선택 리스트
     if (sessionData != null) {
       sessionData.questions.forEach((key, value) {
-        newData.add(value.toString());
+        newData[key.toString()] = value.toString();
+        newCardSelections[key.toString()] = false;
       });
     }
 
     setState(() {
       contents = newData; // 기존 데이터를 새 데이터로 교체
+      cardSelections = newCardSelections; // 기존 선택을 새 선택으로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
       selectedCard = true; // 선지 생성됨.
     });
@@ -229,7 +246,14 @@ class _GptPageState extends State<GptPage> {
                                   ),
                                   itemCount: contents.length,
                                   itemBuilder: (context, index) {
-                                    return SelectCard(content: contents[index]);
+                                    var entry =
+                                        contents.entries.elementAt(index);
+                                    return SelectCard(
+                                      content: entry.value,
+                                      isInverted: cardSelections[entry.key]!,
+                                      toggleInvert: () =>
+                                          toggleCardState(entry.key),
+                                    );
                                   },
                                 ),
                               )
@@ -323,9 +347,11 @@ class _GptPageState extends State<GptPage> {
     if (resultData != null) {
       // resultData의 diseaseInfo 리스트를 반복하여 각 정보를 추출
       for (var diseaseInfo in resultData.diseaseInfo) {
-        diseases.add(diseaseInfo.disease);
-        departments.add(diseaseInfo.dept);
-        descriptions.add(diseaseInfo.description);
+        setState(() {
+          diseases.add(diseaseInfo.disease);
+          departments.add(diseaseInfo.dept);
+          descriptions.add(diseaseInfo.description);
+        });
       }
     }
 
@@ -335,42 +361,38 @@ class _GptPageState extends State<GptPage> {
 // 질문 선택 결과 백에 전송.
   Future<ResultData?> responseQuestion() async {
     // SelectCard에서 가져온 선택값
-    Map<String, String> responseResult = finalSelect!.getFinalSelect();
 
     try {
+      print(cardSelections
+          .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/'),
+        Uri.parse('http://127.0.0.1:8000/secondary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
-          'response': {
-            SessionID:
-                Map.fromIterables(responseResult.keys, responseResult.values)
-          }
+          'responses': cardSelections
+              .map((key, value) => MapEntry(key, value ? 'yes' : 'no'))
         }),
       );
 
       // JSON 응답 객체에서 'response' 키를 통해 질병 정보를 추출
       if (response.statusCode == 200) {
+        recieveResult = true;
         var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
 
         // response 객체에서 각 질병 정보를 추출
-        Map<String, dynamic> diseases = jsonResponse['response'];
+        Map<String, dynamic> diseases = jsonResponse;
 
         // 모든 질병 정보를 리스트로 변환
-        List<DiseaseInfo> diseaseInfoList = diseases.entries
-            .map((entry) => DiseaseInfo(
-                disease: entry.value['Disease'],
-                dept: entry.value['recommended_department'],
-                description: entry.value['description']))
-            .toList();
+        List<DiseaseInfo> diseaseInfoList = [
+          DiseaseInfo(
+              disease: diseases['Disease'],
+              dept: diseases['recommended_department'],
+              description: diseases['description'])
+        ];
 
         // 응답 데이터를 사용하여 ResultData 객체를 생성
-        var resultData = ResultData(
-            sessionId: jsonResponse['session_id'],
-            symptoms: List<String>.from(jsonResponse['symptoms']),
-            questions: responseResult, // finalSelect 정보 포함
-            diseaseInfo: diseaseInfoList);
+        var resultData = ResultData(diseaseInfo: diseaseInfoList);
 
         return resultData;
       } else {
