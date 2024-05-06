@@ -20,7 +20,7 @@ def parse_primary_response(response: str) -> list:
         str(uuid4()): _.strip() for _ in responses[0].replace("1.", "").split("|")
     }
 
-    raw_diseases = responses[1].replace("2.", "").split("|")
+    raw_diseases = responses[1].replace("2.", "").replace("ICD code:", "").split("|")
 
     diseases = {}
     for i in raw_diseases:
@@ -32,7 +32,12 @@ def parse_primary_response(response: str) -> list:
     # Extract the disease-symptom pairs
     temp = []
     for pair in responses[2].split("/"):
-        temp.append([_.strip() for _ in pair.replace("3.", "").split("|")])
+        temp.append(
+            [
+                _.strip()
+                for _ in pair.replace("3.", "").replace("ICD code:", "").split("|")
+            ]
+        )
 
     question = {}
     for i in temp:
@@ -46,6 +51,7 @@ def parse_primary_response(response: str) -> list:
 
 
 def create_secondary_input(input_data: UserQuestionResponse) -> str:
+    print(input_data.responses)
     result = ""
     session = SessionManager.get_session(input_data.session_id)
     result += ", ".join(session.primary_symptoms.values())
