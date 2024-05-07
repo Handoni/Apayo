@@ -1,6 +1,6 @@
-from app.core.config import get_settings
+from core.config import get_settings
 from openai import OpenAI
-from app.core.prompt import *
+from core.prompt import *
 
 
 async def get_gpt_response(input_data: str, system_message: str):

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from app.api.routers.disease_prediction_router import router as api_router
+from api.routers.disease_prediction_router import router as api_router
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials, initialize_app
-from app.core.config import get_settings
+from core.config import get_settings
 
 app = FastAPI()
 

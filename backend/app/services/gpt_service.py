@@ -1,20 +1,20 @@
-from app.api.schemas.primary_disease_prediction import UserSymptomInput
-from app.api.schemas.secondary_disease_prediction import UserQuestionResponse
-from app.utils.data_processing import (
+from api.schemas.primary_disease_prediction import UserSymptomInput
+from api.schemas.secondary_disease_prediction import UserQuestionResponse
+from utils.data_processing import (
     parse_primary_response,
     create_secondary_input,
     parse_secondary_response,
 )
 from fastapi import HTTPException
-from app.core.prompt import (
+from core.prompt import (
     PRIMARY_DISEASE_PREDICTION_PROMPT1,
     PRIMARY_DISEASE_PREDICTION_PROMPT2,
     PRIMARY_DISEASE_PREDICTION_PROMPT3,
     SECONDARY_DISEASE_PREDICTION_PROMPT,
 )
-from app.utils.api_client import get_gpt_response
-from app.api.schemas.disease_prediction_session import DiseasePredictionSession
-from app.services.firebase_service import SessionManager
+from utils.api_client import get_gpt_response
+from api.schemas.disease_prediction_session import DiseasePredictionSession
+from services.firebase_service import SessionManager
 
 
 async def primary_disease_prediction(input_data: UserSymptomInput):
