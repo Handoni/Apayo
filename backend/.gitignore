@@ -53,3 +53,6 @@ instance/
 
 # mypy
 .mypy_cache/
+
+#firebase
+firebase.json
