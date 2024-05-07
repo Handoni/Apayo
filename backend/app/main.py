@@ -22,8 +22,7 @@ app.add_middleware(
 Settings = get_settings()
 
 cred = credentials.Certificate(json.loads(base64.b64decode(Settings.google_application_credentials)))
-
+initialize_app(cred)
 
 if __name__ == "__main__":
-    initialize_app(cred)
     uvicorn.run(app, host="127.0.0.1", port=8000)
