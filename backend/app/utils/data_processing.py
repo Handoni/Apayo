@@ -1,11 +1,11 @@
 import re
-from app.api.schemas.secondary_disease_prediction import (
+from api.schemas.secondary_disease_prediction import (
     UserQuestionResponse,
 )
-from app.services.firebase_service import SessionManager
+from services.firebase_service import SessionManager
 from uuid import uuid4
 from fastapi import HTTPException
-from app.api.schemas.secondary_disease_prediction import PredictedDisease
+from api.schemas.secondary_disease_prediction import PredictedDisease
 
 
 def parse_primary_response(response: str) -> list:
