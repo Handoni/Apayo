@@ -4,7 +4,8 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials, initialize_app
 from core.config import get_settings
-
+import base64
+import json
 app = FastAPI()
 
 app.include_router(api_router)
@@ -20,7 +21,7 @@ app.add_middleware(
 
 Settings = get_settings()
 
-cred = credentials.Certificate(Settings.google_application_credentials)
+cred = credentials.Certificate(json.loads(base64.b64decode(Settings.google_application_credentials)))
 
 
 if __name__ == "__main__":
