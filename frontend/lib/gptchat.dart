@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+
 import 'widgets/result_card.dart';
 import 'widgets/select_card.dart';
 import 'package:http/http.dart' as http;
@@ -46,6 +47,7 @@ class GptPage extends StatefulWidget {
 }
 
 // selectcard 인스턴스
+
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {

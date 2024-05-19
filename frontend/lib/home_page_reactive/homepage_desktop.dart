@@ -25,7 +25,7 @@ class DesktopLayout extends StatelessWidget {
         // 왼쪽부분
         Expanded(
           child: Container(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(30.0),
             child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center, //정렬
@@ -37,10 +37,13 @@ class DesktopLayout extends StatelessWidget {
                     height: 250,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
+                    padding: EdgeInsets.only(left: 20.0),
                     child: Text(
                       'APAYO 에게 어디가 어떻게 아픈지 말해보세요! \n몸에 문제가 생긴건 아닌지 불안하신가요? APAYO가 찾아볼게요!',
-                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w200),
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -58,11 +61,11 @@ class DesktopLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 100),
+                  SizedBox(height: 50),
                   ElevatedButton(
                     onPressed: () => _onLogInPressed(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(198, 111, 128, 255),
+                      backgroundColor: const Color.fromARGB(255, 55, 207, 207),
                       minimumSize: const Size(120, 50),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       foregroundColor: Colors.white,
@@ -73,7 +76,7 @@ class DesktopLayout extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => _onSignUpPressed(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(198, 111, 128, 255),
+                      backgroundColor: const Color.fromARGB(255, 55, 207, 207),
                       minimumSize: const Size(120, 50),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       foregroundColor: Colors.white,
