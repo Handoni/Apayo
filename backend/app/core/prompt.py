@@ -27,6 +27,8 @@ PRIMARY_DISEASE_PREDICTION_PROMPT1 = """
 As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
 This is first step of the process. Carefully follow these instructions:
 Convert user-described "main symptoms" into a list of keywords.
+Include mental and emotional symptoms by recognizing phrases that indicate psychological distress or mental health conditions.
+If the input is not related to the disease or symptoms at all, return 'no symptoms'.
 Use the format Korean symptom name (English Symptom Name), e.g., 두통(headache).
 List no more than 10 symptoms, separated by '|'.
 Example format for "I have a headache and a cough" should be: "두통(headache)|기침(cough)".
@@ -38,7 +40,7 @@ Based on the symptoms, identify "3 possible diseases" using the ICD classificati
 Ensure the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions.
 List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)", separated by '|'.
 Avoid vague terms like 'other' or 'unspecified'.
-Input Example: "두통(headache)|기침(cough)"
+Input Example: "input of user: 머리가 아프고 기침이 나요. expected symptoms: 두통(headache)|기침(cough)"
 Output Example: "J00:감기(cold)|J45:천식(asthma)|...".
 """
 PRIMARY_DISEASE_PREDICTION_PROMPT3 = """
@@ -101,21 +103,22 @@ SECONDARY_DISEASE_PREDICTION_PROMPT = """
 As a knowledgeable medical assistant, your task is to analyze user-reported symptoms, suggest the most probable disease, and recommend an appropriate diagnostic department for further examination.
 
 Input format:
-1. Main Symptoms: A comma-separated list of primary symptoms as reported by the user.
-2. Predicted Diseases: A list of potential diseases related to the main symptoms, formatted as 'ICD code:Disease name'.
-3. Additional Symptoms: A list of secondary symptoms derived from the main symptoms, selected and verified by the user with responses (Yes/No). This helps refine the disease prediction.
+1. User Input: plain text of the user's main symptoms.
+2. Main Symptoms: A comma-separated list of primary symptoms as reported by the user.
+3. Predicted Diseases: A list of potential diseases related to the main symptoms, formatted as 'ICD code:Disease name'.
+4. Additional Symptoms: A list of secondary symptoms derived from the main symptoms, selected and verified by the user with responses (Yes/No). This helps refine the disease prediction.
 
-Example input:
-허리통증(back pain), 다리저림(leg numbness)
-M54.5:요통(low back pain), M51.2:척추 디스크 변성(lumbar disc degeneration), G57.1:경골신경병증(tibial neuropathy), M47.8:기타 척추증(other spondylosis), M54.4:요천추통(lumbosacral pain)
-허리에 통증이 지속된다:yes, 움직일 때 통증이 심해진다:yes, 앉아 있을 때 통증이 느껴진다:no, 허리의 뻣뻣함이 느껴진다:no, 허리를 구부릴 때 통증이 있다: yes ...(and so on)
+-- Example input --
+User Input: 허리가 아프고 다리가 저린다.
+Extracted Symptoms: 허리통증(back pain), 다리저림(leg numbness)
+Predicted Diseases: M54.5:요통(low back pain), M51.2:척추 디스크 변성(lumbar disc degeneration), G57.1:경골신경병증(tibial neuropathy), M47.8:기타 척추증(other spondylosis), M54.4:요천추통(lumbosacral pain)
+Additional Symptoms: 허리에 통증이 지속된다:yes, 움직일 때 통증이 심해진다:yes, 앉아 있을 때 통증이 느껴진다:no, 허리의 뻣뻣함이 느껴진다:no, 허리를 구부릴 때 통증이 있다: yes ...(and so on)
 
 -- Instructions --
 Analyze the input to predict the most likely disease based on the symptoms. Select the most appropriate diagnostic department for further investigation. Ensure that your prediction considers the additional symptoms and is relevant to the disease's common diagnosis pathway.
 - Write down only the information in the instruction without any additional explanation.
 - Do not use delimiters like '|' unless required to distinguish between responses.
 - (Very important) In particular, refer to the example output and output it in the same format.
-- 
 
 Output format:
 'Disease name (in Korean) | Diagnostic department (in Korean and English) | Explanation for your prediction'
