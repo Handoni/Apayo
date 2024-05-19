@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/gptchat.dart';
+
+
 import 'package:frontend/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -45,14 +47,17 @@ class LoginPage extends StatelessWidget {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; //넓이
     double screenHeight = MediaQuery.of(context).size.height; //높이 가져옴
 
     // 화면 크기에 따라 폰트 크기와 패딩을 동적으로 설정
+
     double fontSize = screenWidth < 850 ? 18 : 18;
     double paddingSize = screenWidth < 850 ? 20 : 50;
+
     double formFieldWidth =
         screenWidth < 800 ? screenWidth * 0.8 : screenWidth * 0.3;
 
@@ -67,6 +72,7 @@ class LoginPage extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
+
             ),
             SizedBox(width: 10),
             Text(
@@ -107,6 +113,7 @@ class LoginPage extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20), // 박스 각도 추가
                       ),
+
                       //height: screenHeight * 0.7, //박스크기
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,12 +168,14 @@ class LoginPage extends StatelessWidget {
                           ),
 
                           // or 사진 *************************************
+
                           SizedBox(height: screenHeight * 0.02),
                           Image.asset(
                             'assets/or.png',
                             width: 300,
                             height: 40,
                           ),
+
                           //read policy***************************************
                           SizedBox(height: screenHeight * 0.02),
                           TextButton(
@@ -196,6 +205,7 @@ class LoginPage extends StatelessWidget {
                                     builder: (context) => SignUpPage(),
                                   ),
                                 );
+
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
@@ -208,7 +218,9 @@ class LoginPage extends StatelessWidget {
                                 "don't have account? Sign Up",
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 0, 0, 0),
+
                                   fontSize: fontSize * 0.7,
+
                                   fontWeight: FontWeight.w200,
                                   //decoration: TextDecoration.underline,
                                 ),

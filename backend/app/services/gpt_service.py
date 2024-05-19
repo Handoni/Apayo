@@ -1,55 +1,68 @@
-from app.core.config import get_settings
-from app.api.schemas.disease_prediction_schema import SymptomInput
-from openai import OpenAI
-from app.utils.data_processing import parse_gpt_response
+from app.api.schemas.primary_disease_prediction import UserSymptomInput
+from app.api.schemas.secondary_disease_prediction import UserQuestionResponse
+from app.utils.data_processing import (
+    parse_primary_response,
+    create_secondary_input,
+    parse_secondary_response,
+)
+from fastapi import HTTPException
+from app.core.prompt import (
+    PRIMARY_DISEASE_PREDICTION_PROMPT1,
+    PRIMARY_DISEASE_PREDICTION_PROMPT2,
+    PRIMARY_DISEASE_PREDICTION_PROMPT3,
+    SECONDARY_DISEASE_PREDICTION_PROMPT,
+)
+from app.utils.api_client import get_gpt_response
+from app.api.schemas.disease_prediction_session import DiseasePredictionSession
+from app.services.firebase_service import SessionManager
 
-async def disease_prediction(input_data: SymptomInput):
-    settings = get_settings()
-    GPT_API_KEY = settings.gpt_api_key
-    MODEL = "gpt-3.5-turbo"
 
-    SYSTEM_MESSAGE = "You are a useful medical assistant, \
-        and you should play a role in analyzing the user's symptoms, predicting the disease associated with the symptoms, \
-        and encouraging them to go to the relevant diagnostic department. \
-        Follow these instructions step by step, answer line 1 for number 1 and line 2 for number 2. \
-        Do not include index numbers in the response like '1.', '2.', so on. \
-        Do not provide any information other than the instructions. \
-        0. If input is totally irrelevant with the symptoms, please type 'No symptoms'. \
-        1. Based on the symptoms stated by the user, you need to extract the main symptoms into words. \
-            The symptom name follows the format: 한국어증상명(English Symptom name), e.g. 두통(headache) \
-            Extract up to 10 symptom names, and separate them all into commas. \
-            e.g. I have a headache and a cough --> 두통(headache), 기침(cough) \
-        2. Based on the symptoms, you need to list the disease related to the symptoms.\
-            Return 5 diseases in the most common order. \
-            The disease name follows the format: 한국어질병명(English disease name), e.g. 감기(cold) \
-            Print out only 5 disease names, separated by commas, without further explanation. \
-        3. Based on the listed diseases, you need to list the symptoms of the disease to identify the user's disease. \
-            List 3 symptoms per disease. \
-            Symptoms are presented in easy and concise Korean sentences in the form of: '-한다', e.g. 감기(cold) --> 콧물이 난다. \
-            Symptoms include only features that the user can feel and understand the terms, \
-            and exclude features that require medical examination (features that may appear on e.g. X-rays or MRI pictures). \
-            The output follows the format:\
-            질병명1(disease name 1), 증상1, 증상2, 증상3 / 질병명2(disease name 2), 증상1, 증상2, 증상3 / ... \
-            e.g. 감기(cold), 콧물이 난다, 기침이 나온다, 몸살이 난다 / 천식(asthma), 기침이 나온다, 호흡곤란하다, 가슴이 답답하다 / ..."
+async def primary_disease_prediction(input_data: UserSymptomInput):
+    response1 = await get_gpt_response(
+        input_data.symptoms, PRIMARY_DISEASE_PREDICTION_PROMPT1
+    )
+    response2 = await get_gpt_response(response1, PRIMARY_DISEASE_PREDICTION_PROMPT2)
+    input3 = "User Symptom: " + response1 + " " + "Disease: " + response2
 
-    client = OpenAI(
-        api_key=GPT_API_KEY,
+    response3 = await get_gpt_response(input3, PRIMARY_DISEASE_PREDICTION_PROMPT3)
+
+    response = parse_primary_response(response1 + "\n" + response2 + "\n" + response3)
+    if not response:
+        raise HTTPException(status_code=404, detail="failed to find symptoms")
+
+    session = SessionManager.create_session(user_id=input_data.user_id)
+
+    # Update session with new data
+    SessionManager.update_session(
+        session.session_id,
+        {
+            "primary_symptoms": response[0],
+            "primary_diseases": response[1],
+            "primary_questions": response[2],
+        },
     )
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "system", "content": SYSTEM_MESSAGE},
-            {"role": "user", "content": input_data.symptoms},
-        ],
-        stop=None,
-        temperature=0.5,
+    return session.prepare_primary_disease_prediction_response()
+
+
+async def secondary_disease_prediction(input_data: UserQuestionResponse):
+    session = SessionManager.get_session(input_data.session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    response = await get_gpt_response(
+        create_secondary_input(input_data), SECONDARY_DISEASE_PREDICTION_PROMPT
     )
-    response = response.choices[0].message.content
-    #json으로 응답
-    response = parse_gpt_response(response)
-    return {
-        "diseases": response[0],
-        "symptoms": response[1],
-        "disease_symptom_pairs": response[2]
-    }
+
+    response = parse_secondary_response(response)
+    if not response:
+        raise HTTPException(status_code=404, detail="failed to get response")
+
+    SessionManager.update_session(
+        session.session_id,
+        {
+            "secondary_symptoms": input_data,
+            "final_diseases": response,
+        },
+    )
+    return response
