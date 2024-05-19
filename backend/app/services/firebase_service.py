@@ -1,5 +1,5 @@
 from firebase_admin import firestore
-from app.api.schemas.disease_prediction_session import DiseasePredictionSession
+from api.schemas.disease_prediction_session import DiseasePredictionSession
 from typing import Dict
 from datetime import datetime
 

@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
-from app.api.schemas.primary_disease_prediction import (
+from api.schemas.primary_disease_prediction import (
     PrimaryDiseasePredictionResponse,
 )
-from app.api.schemas.secondary_disease_prediction import (
+from api.schemas.secondary_disease_prediction import (
     PredictedDisease,
     UserQuestionResponse,
 )

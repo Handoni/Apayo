@@ -112,6 +112,10 @@ M54.5:요통(low back pain), M51.2:척추 디스크 변성(lumbar disc degenerat
 
 -- Instructions --
 Analyze the input to predict the most likely disease based on the symptoms. Select the most appropriate diagnostic department for further investigation. Ensure that your prediction considers the additional symptoms and is relevant to the disease's common diagnosis pathway.
+- Write down only the information in the instruction without any additional explanation.
+- Do not use delimiters like '|' unless required to distinguish between responses.
+- (Very important) In particular, refer to the example output and output it in the same format.
+- 
 
 Output format:
 'Disease name (in Korean) | Diagnostic department (in Korean and English) | Explanation for your prediction'

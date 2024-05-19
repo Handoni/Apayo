@@ -1,13 +1,13 @@
 from fastapi import APIRouter
-from app.api.schemas.primary_disease_prediction import (
+from api.schemas.primary_disease_prediction import (
     UserSymptomInput,
     PrimaryDiseasePredictionResponse,
 )
-from app.api.schemas.secondary_disease_prediction import (
+from api.schemas.secondary_disease_prediction import (
     UserQuestionResponse,
     PredictedDisease,
 )
-from app.services.gpt_service import (
+from services.gpt_service import (
     primary_disease_prediction,
     secondary_disease_prediction,
 )
