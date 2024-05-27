@@ -2,11 +2,7 @@ from pydantic import BaseModel, Field
 from api.schemas.primary_disease_prediction import (
     PrimaryDiseasePredictionResponse,
 )
-from api.schemas.secondary_disease_prediction import (
-    PredictedDisease,
-    UserQuestionResponse,
-)
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 from uuid import uuid4
 from datetime import datetime
 

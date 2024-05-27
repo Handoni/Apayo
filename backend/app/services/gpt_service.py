@@ -13,15 +13,25 @@ from core.prompt import (
     SECONDARY_DISEASE_PREDICTION_PROMPT,
 )
 from utils.api_client import get_gpt_response
-from api.schemas.disease_prediction_session import DiseasePredictionSession
-from services.firebase_service import SessionManager
-
+from services.session_service import SessionManager
+from services.embedding_service import infer_disease
 
 async def primary_disease_prediction(input_data: UserSymptomInput):
     response1 = await get_gpt_response(
         input_data.symptoms, PRIMARY_DISEASE_PREDICTION_PROMPT1
     )
-    response2 = await get_gpt_response(response1, PRIMARY_DISEASE_PREDICTION_PROMPT2)
+    symptoms = parse_symptoms(response1)
+    if not symptoms:
+        raise HTTPException(status_code=400, detail="Bad Request: failed to find symptoms")
+    infered_diseases = infer_disease(input_data.symptoms)
+    print(infered_diseases)
+
+    input2 = "User Symptom: " + input_data.symptoms + " " + "expected symptoms: " + response1
+    response2 = await get_gpt_response(input2, PRIMARY_DISEASE_PREDICTION_PROMPT2)
+    diseases = parse_diseases(response2)
+    if not diseases:
+        raise HTTPException(status_code=404, detail="Not Found: failed to find diseases")
+    
     input3 = "User Symptom: " + response1 + " " + "Disease: " + response2
 
     response3 = await get_gpt_response(input3, PRIMARY_DISEASE_PREDICTION_PROMPT3)
