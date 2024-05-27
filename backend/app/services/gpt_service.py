@@ -1,7 +1,9 @@
 from api.schemas.primary_disease_prediction import UserSymptomInput
 from api.schemas.secondary_disease_prediction import UserQuestionResponse
 from utils.data_processing import (
-    parse_primary_response,
+    parse_diseases,
+    parse_questions,
+    parse_symptoms,
     create_secondary_input,
     parse_secondary_response,
 )
@@ -33,12 +35,10 @@ async def primary_disease_prediction(input_data: UserSymptomInput):
         raise HTTPException(status_code=404, detail="Not Found: failed to find diseases")
     
     input3 = "User Symptom: " + response1 + " " + "Disease: " + response2
-
     response3 = await get_gpt_response(input3, PRIMARY_DISEASE_PREDICTION_PROMPT3)
-
-    response = parse_primary_response(response1 + "\n" + response2 + "\n" + response3)
-    if not response:
-        raise HTTPException(status_code=404, detail="failed to find symptoms")
+    questions = parse_questions(response3)
+    if not questions:
+        raise HTTPException(status_code=404, detail="Not Found: failed to find questions")
 
     session = SessionManager.create_session(user_id=input_data.user_id)
 
@@ -46,9 +46,10 @@ async def primary_disease_prediction(input_data: UserSymptomInput):
     SessionManager.update_session(
         session.session_id,
         {
-            "primary_symptoms": response[0],
-            "primary_diseases": response[1],
-            "primary_questions": response[2],
+            "user_input": input_data.symptoms,
+            "primary_symptoms": symptoms,
+            "primary_diseases": diseases,
+            "primary_questions": questions,
         },
     )
 
@@ -71,8 +72,10 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
     SessionManager.update_session(
         session.session_id,
         {
-            "secondary_symptoms": input_data,
-            "final_diseases": response,
+            "secondary_symptoms": input_data.model_dump(),
+            "final_diseases": response.Disease,
+            "recommended_department": response.recommended_department,
+            "final_disease_description": response.description,
         },
     )
     return response
