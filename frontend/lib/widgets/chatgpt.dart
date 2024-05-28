@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/popup.dart';
+import 'package:frontend/widgets/result_card.dart';
+import 'package:frontend/widgets/select_card.dart';
 
-import 'widgets/popup.dart';
-import 'widgets/result_card.dart';
-import 'widgets/select_card.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -347,6 +347,8 @@ class _GptPageState extends State<GptPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            //if (selectedCard) // 백이랑 합치고 주석 해제.
+                            //if (!recieveResult) // 최종 결과 안 나올 때까지
                             if (!recieveResult && selectedCard)
                               (AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
@@ -392,7 +394,7 @@ class _GptPageState extends State<GptPage> {
                                     onPressed: () =>
                                         attempt // 이미 시도하여 new chat을 해야하는 경우.
                                             ? PopupMessage(
-                                                    '\'new chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                    '\'new chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
                                                 .showPopup(context)
                                             : _sendMessage(),
                                   ),
