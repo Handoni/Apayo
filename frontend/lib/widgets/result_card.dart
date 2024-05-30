@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ResultCard extends StatelessWidget {
   final String disease, description, dept;
@@ -21,22 +22,20 @@ class ResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Text(
-                '    진단 결과를 알려드릴게요!',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '  (병원에 방문하실 때 참고해보세요)',
-                style: TextStyle(
-                  fontSize: 18,
-                ),
-              ),
-            ],
+          AutoSizeText(
+            '    진단 결과를 알려드릴게요!',
+            maxFontSize: 18,
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.03,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          AutoSizeText(
+            '        \n(병원에 방문하실 때 참고해보세요)',
+            maxFontSize: 18,
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.02,
+            ),
           ),
           const SizedBox(
             height: 10,
@@ -54,22 +53,25 @@ class ResultCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // 결과
                 children: [
-                  Text(
-                    //'예상 질병 $n 순위 : $disease\n',
+                  AutoSizeText(
                     '예상 질병이나 증상 : $disease\n',
-                    style: const TextStyle(
-                      fontSize: 20,
+                    maxFontSize: 20,
+                    style: TextStyle(
                       fontWeight: FontWeight.w900,
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
                     ),
                   ),
-                  Text(
+                  AutoSizeText(
                     '$description\n',
-                    style: const TextStyle(fontSize: 18),
+                    maxFontSize: 18,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.02),
                   ),
-                  Text(
+                  AutoSizeText(
                     '추천 진료과 : $dept',
-                    style: const TextStyle(
-                      fontSize: 18,
+                    maxFontSize: 18,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.02,
                       fontWeight: FontWeight.w700,
                     ),
                   )

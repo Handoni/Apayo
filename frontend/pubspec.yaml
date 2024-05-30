@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  auto_size_text: ^3.0.0
+  flutter_screenutil: ^5.0.0+2
 
   http: ^1.2.1
 

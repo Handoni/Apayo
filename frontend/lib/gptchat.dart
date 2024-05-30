@@ -102,8 +102,7 @@ class _GptPageState extends State<GptPage> {
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/primary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
         body: json.encode(
             {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
@@ -130,6 +129,7 @@ class _GptPageState extends State<GptPage> {
             questions: questions);
 
         SessionID = sessionData.sessionId;
+        selectedCard = true; // 선지 생성됨.
         // Optionally print or return session data
         // print('Session ID: ${sessionData.sessionId}');
         // print('Symptoms: ${sessionData.symptoms}');
@@ -161,7 +161,6 @@ class _GptPageState extends State<GptPage> {
       contents = newData; // 기존 데이터를 새 데이터로 교체
       cardSelections = newCardSelections; // 기존 선택을 새 선택으로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
-      selectedCard = true; // 선지 생성됨.
     });
   }
 
@@ -191,8 +190,7 @@ class _GptPageState extends State<GptPage> {
       print(cardSelections
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/secondary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/secondary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
@@ -285,17 +283,20 @@ class _GptPageState extends State<GptPage> {
                         ),
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       Column(
                         children: [
-                          if (selectedCard) // 선지가 생성됐을 때 출력.
+                          if (selectedCard && !recieveResult) // 선지가 생성됐을 때 출력.
                             const Text(
                               "아래 해당되는 항목을 눌러보세요!",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w900),
                             ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
                       Expanded(
                         flex: 8,
@@ -309,9 +310,9 @@ class _GptPageState extends State<GptPage> {
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2, // 한 줄에 카드 2개씩 배치
-                                    childAspectRatio: 5 / 1, //item 의 가로 세로의 비율
-                                    crossAxisSpacing: 25, // 카드 간 가로 간격
-                                    mainAxisSpacing: 25, // 카드 간 세로 간격
+                                    childAspectRatio: 8 / 3, //item 의 가로 세로의 비율
+                                    crossAxisSpacing: 20, // 카드 간 가로 간격
+                                    mainAxisSpacing: 20, // 카드 간 세로 간격
                                   ),
                                   itemCount: contents.length,
                                   itemBuilder: (context, index) {
@@ -347,9 +348,8 @@ class _GptPageState extends State<GptPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            //if (selectedCard) // 백이랑 합치고 주석 해제.
-                            //if (!recieveResult) // 최종 결과 안 나올 때까지
-                            if (!recieveResult && selectedCard)
+                            if (!recieveResult &&
+                                selectedCard) // 최종 결과 나오지 않고, 선지가 생성됐을 때 진단받기 버튼 생성.
                               (AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
                                 child: ElevatedButton(

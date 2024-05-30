@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class SelectCard extends StatefulWidget {
   final String content;
@@ -25,33 +26,31 @@ class SelectCardState extends State<SelectCard> {
     return GestureDetector(
       onTap: widget.toggleInvert, // 카드 탭 시 _toggleInvert 함수 호출
       child: Container(
-        height: 50,
         decoration: BoxDecoration(
           // 카드의 색상은 isInverted가 true일 때(마우스 선택)는 연두, 아니면 _blackColor 사용
           color: widget.isInverted ? _invertedColor : greybackground,
           // 카드 모서리를 둥글게 처리
-          borderRadius: BorderRadius.circular(25),
+          borderRadius:
+              BorderRadius.circular(MediaQuery.of(context).size.width * 0.03),
         ),
-        child: Padding(
-          // 카드 내부의 패딩 설정
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            // 세로축 기준으로 텍스트를 왼쪽 정렬
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 항목 내용 표시
-              Text(
-                widget.content,
-                style: const TextStyle(
-                  // 스타일 조건부 적용
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+        child: Column(
+          // 세로축 기준으로 텍스트를 왼쪽 정렬
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 항목 내용 표시
+            AutoSizeText(
+              widget.content,
+              maxFontSize: 20,
+              minFontSize: 5,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
