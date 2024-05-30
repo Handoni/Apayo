@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/gptchat.dart';
-
-
 import 'package:frontend/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -47,7 +45,6 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; //넓이
@@ -72,7 +69,6 @@ class LoginPage extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
-
             ),
             SizedBox(width: 10),
             Text(
@@ -181,8 +177,8 @@ class LoginPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read APAYO's policy",
@@ -195,7 +191,7 @@ class LoginPage extends StatelessWidget {
 
                           // 회원가입 버튼 ******************************
                           SizedBox(height: screenHeight * 0.03),
-                          Container(
+                          SizedBox(
                             width: formFieldWidth,
                             child: OutlinedButton(
                               onPressed: () {
@@ -205,7 +201,6 @@ class LoginPage extends StatelessWidget {
                                     builder: (context) => SignUpPage(),
                                   ),
                                 );
-
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,

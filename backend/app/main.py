@@ -3,18 +3,13 @@ from api.routers.disease_prediction_router import router as api_router
 from api.routers.user_router import router as user_router
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from firebase_admin import credentials, initialize_app
-from core.config import get_settings
-import base64
-import json
+from data.embedding import create_embedding_data
+from core.firebase import initialize_firebase
 app = FastAPI()
 
 app.include_router(api_router)
-<<<<<<< Updated upstream
-=======
 app.include_router(user_router)
 
->>>>>>> Stashed changes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -29,10 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Settings = get_settings()
-
-cred = credentials.Certificate(json.loads(base64.b64decode(Settings.google_application_credentials)))
-initialize_app(cred)
+initialize_firebase()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

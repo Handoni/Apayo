@@ -2,7 +2,7 @@ import re
 from api.schemas.secondary_disease_prediction import (
     UserQuestionResponse,
 )
-from services.firebase_service import SessionManager
+from services.session_service import SessionManager
 from uuid import uuid4
 from fastapi import HTTPException
 from api.schemas.secondary_disease_prediction import PredictedDisease

@@ -3,6 +3,7 @@ import base64
 import json
 from firebase_admin import credentials, initialize_app, auth
 from core.config import get_settings
+from fastapi import HTTPException, Request
 
 _initialized = False
 
