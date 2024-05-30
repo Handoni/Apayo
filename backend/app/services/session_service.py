@@ -2,19 +2,19 @@ from firebase_admin import firestore
 from api.schemas.disease_prediction_session import DiseasePredictionSession
 from typing import Dict
 from datetime import datetime
+from core.firebase import initialize_firebase
 
+initialize_firebase()
 
 class SessionManager:
     _sessions_cache = {}
     _db = None
 
-    @staticmethod
     def get_db():
         if SessionManager._db is None:
             SessionManager._db = firestore.client()
         return SessionManager._db
 
-    @staticmethod
     def create_session(user_id: str) -> DiseasePredictionSession:
         """Create a new session and save it to Firestore."""
         db = SessionManager.get_db()
@@ -29,7 +29,6 @@ class SessionManager:
         SessionManager._sessions_cache[new_session.session_id] = new_session
         return new_session
 
-    @staticmethod
     def get_session(session_id: str) -> DiseasePredictionSession:
         """Retrieve a session from the local cache or Firestore."""
         db = SessionManager.get_db()
@@ -46,7 +45,6 @@ class SessionManager:
             return session
         raise ValueError("Session not found")
 
-    @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):
         """Update an existing session both locally and in Firestore using to_firestore_dict."""
         db = SessionManager.get_db()
@@ -69,14 +67,3 @@ class SessionManager:
         session_ref = db.collection("disease_prediction_sessions").document(session_id)
         session_ref.update(updated_session_data)
 
-    @staticmethod
-    def assign_secondary_symptoms(session_id: str, responses: Dict[str, str]):
-        """Assign secondary symptoms to a session and update the session."""
-        if session_id in SessionManager._sessions_cache:
-            session = SessionManager._sessions_cache[session_id]
-            session.assign_secondary_symptoms(responses)
-            SessionManager.update_session(
-                session_id, {"secondary_symptoms": session.secondary_symptoms}
-            )
-        else:
-            raise ValueError("Session not found")
