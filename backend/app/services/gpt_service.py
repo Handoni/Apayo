@@ -16,7 +16,7 @@ from core.prompt import (
 )
 from utils.api_client import get_gpt_response
 from services.session_service import SessionManager
-from services.embedding_service import infer_disease
+#from services.embedding_service import infer_disease
 
 async def primary_disease_prediction(input_data: UserSymptomInput):
     response1 = await get_gpt_response(
@@ -25,8 +25,8 @@ async def primary_disease_prediction(input_data: UserSymptomInput):
     symptoms = parse_symptoms(response1)
     if not symptoms:
         raise HTTPException(status_code=400, detail="Bad Request: failed to find symptoms")
-    infered_diseases = infer_disease(input_data.symptoms)
-    print(infered_diseases)
+    #infered_diseases = infer_disease(input_data.symptoms)
+    #print(infered_diseases)
 
     input2 = "User Symptom: " + input_data.symptoms + " " + "expected symptoms: " + response1
     response2 = await get_gpt_response(input2, PRIMARY_DISEASE_PREDICTION_PROMPT2)
