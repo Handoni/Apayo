@@ -17,7 +17,7 @@ def register_user(user: UserCreate):
     
     try:
         user_record = create_user(user)
-        return User(id=user_record['id'], email=user_record['email'], sex=user_record['sex'], age=user_record['age'])
+        return User(id=user_record['id'], email=user_record['email'], nickname=user_record['nickname'], sex=user_record['sex'], age=user_record['age'])
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

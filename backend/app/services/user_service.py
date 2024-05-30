@@ -1,10 +1,14 @@
-from firebase_admin import firestore
+
 from api.schemas.user import UserCreate
 from utils.hashing import get_password_hash, verify_password
 import uuid
+from pymongo import MongoClient
+from core.config import get_settings
 
-db = firestore.client()
 
+settings = get_settings()
+client = MongoClient(settings.mongo_uri)
+db=client['user_db']
 def create_user(user: UserCreate):
     user_id = str(uuid.uuid4())
     hashed_password = get_password_hash(user.password)
@@ -15,15 +19,14 @@ def create_user(user: UserCreate):
         'sex': user.sex,
         'age': user.age
     }
-    db.collection('users').document(user_id).set(user_data)
+    db.users.insert_one({'_id': user_id, **user_data})
     user_data['id'] = user_id
     return user_data
 
 def get_user_by_email(email: str):
-    user_query = db.collection('users').where('email', '==', email).stream()
-    for user in user_query:
-        user_data = user.to_dict()
-        user_data['id'] = user.id
+    user_data = db.users.find_one({'email': email})
+    if user_data:
+        user_data['id'] = str(user_data['_id'])
         return user_data
     return None
 
