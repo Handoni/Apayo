@@ -22,24 +22,20 @@ class ResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              AutoSizeText(
-                '    진단 결과를 알려드릴게요!',
-                maxFontSize: 18,
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.03,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AutoSizeText(
-                '  (병원에 방문하실 때 참고해보세요)',
-                maxFontSize: 18,
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.02,
-                ),
-              ),
-            ],
+          AutoSizeText(
+            '    진단 결과를 알려드릴게요!',
+            maxFontSize: 18,
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.03,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          AutoSizeText(
+            '        \n(병원에 방문하실 때 참고해보세요)',
+            maxFontSize: 18,
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.02,
+            ),
           ),
           const SizedBox(
             height: 10,

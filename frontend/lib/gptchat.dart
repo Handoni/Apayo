@@ -129,6 +129,7 @@ class _GptPageState extends State<GptPage> {
             questions: questions);
 
         SessionID = sessionData.sessionId;
+        selectedCard = true; // 선지 생성됨.
         // Optionally print or return session data
         // print('Session ID: ${sessionData.sessionId}');
         // print('Symptoms: ${sessionData.symptoms}');
@@ -160,7 +161,6 @@ class _GptPageState extends State<GptPage> {
       contents = newData; // 기존 데이터를 새 데이터로 교체
       cardSelections = newCardSelections; // 기존 선택을 새 선택으로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
-      selectedCard = true; // 선지 생성됨.
     });
   }
 
@@ -287,7 +287,7 @@ class _GptPageState extends State<GptPage> {
                       ),
                       Column(
                         children: [
-                          if (selectedCard) // 선지가 생성됐을 때 출력.
+                          if (selectedCard && !recieveResult) // 선지가 생성됐을 때 출력.
                             const Text(
                               "아래 해당되는 항목을 눌러보세요!",
                               style: TextStyle(
@@ -348,9 +348,8 @@ class _GptPageState extends State<GptPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            //if (selectedCard) // 백이랑 합치고 주석 해제.
-                            //if (!recieveResult) // 최종 결과 안 나올 때까지
-                            if (!recieveResult && selectedCard)
+                            if (!recieveResult &&
+                                selectedCard) // 최종 결과 나오지 않고, 선지가 생성됐을 때 진단받기 버튼 생성.
                               (AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
                                 child: ElevatedButton(
