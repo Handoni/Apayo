@@ -102,8 +102,7 @@ class _GptPageState extends State<GptPage> {
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/primary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
         body: json.encode(
             {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
@@ -191,8 +190,7 @@ class _GptPageState extends State<GptPage> {
       print(cardSelections
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/secondary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/secondary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
@@ -285,7 +283,7 @@ class _GptPageState extends State<GptPage> {
                         ),
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       Column(
                         children: [
@@ -296,6 +294,9 @@ class _GptPageState extends State<GptPage> {
                                   fontSize: 18, fontWeight: FontWeight.w900),
                             ),
                         ],
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
                       Expanded(
                         flex: 8,
@@ -309,9 +310,9 @@ class _GptPageState extends State<GptPage> {
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2, // 한 줄에 카드 2개씩 배치
-                                    childAspectRatio: 5 / 1, //item 의 가로 세로의 비율
-                                    crossAxisSpacing: 25, // 카드 간 가로 간격
-                                    mainAxisSpacing: 25, // 카드 간 세로 간격
+                                    childAspectRatio: 8 / 3, //item 의 가로 세로의 비율
+                                    crossAxisSpacing: 20, // 카드 간 가로 간격
+                                    mainAxisSpacing: 20, // 카드 간 세로 간격
                                   ),
                                   itemCount: contents.length,
                                   itemBuilder: (context, index) {
