@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'widgets/result_card.dart';
-import 'widgets/select_card.dart';
+import 'package:frontend/widgets/popup.dart';
+import 'package:frontend/widgets/result_card.dart';
+import 'package:frontend/widgets/select_card.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -28,12 +30,7 @@ class DiseaseInfo {
 class ResultData {
   final List<DiseaseInfo> diseaseInfo;
 
-  ResultData(
-      {
-      // required this.sessionId,
-      // required this.symptoms,
-      // required this.questions,
-      required this.diseaseInfo});
+  ResultData({required this.diseaseInfo});
 }
 
 String SessionID = 'null';
@@ -50,6 +47,7 @@ SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
   Map<String, bool> cardSelections = {}; //id:선택여부
+  bool isLoading = false; // 로딩 상태를 관리하는 변수
 
   @override
   void initState() {
@@ -60,20 +58,57 @@ class _GptPageState extends State<GptPage> {
   }
 
   void toggleCardState(String id) {
+    // 카드의 선택 상태를 변경
     setState(() {
       cardSelections[id] = !cardSelections[id]!;
     });
   }
 
+  String text = ''; // 사용자가 입력한 증상 채팅 저장하는 변수
+  bool attempt = false; // 채팅 시도 여부
+
+  bool selectedCard = false; // 선지가 생성됐는지
+  bool recieveResult = false; // 결과가 도착했는지
+  Key nextKey = UniqueKey(); // 다음으로 이동
+
+  Map<String, String> contents = {}; //ID:값
+
+  final TextEditingController _chatControlloer = TextEditingController();
+
+  int resultlength = 0;
+  List<String> diseases = [];
+  List<String> departments = [];
+  List<String> descriptions = [];
+
+  // 단순히 맨 위에 입력한 증상 띄움. + 백에 전송하는 함수 호출.
+  _sendMessage() async {
+    setState(() {
+      String t = _chatControlloer.text;
+      if (t.trim().isEmpty && !attempt) {
+        // 공백을 전송하였을 때.
+        PopupMessage('증상을 입력해주세요!').showPopup(context);
+        return;
+      } else {
+        text = t;
+      }
+      isLoading = true; // 로딩 상태 활성화
+    });
+
+    SessionData? sessionData = await responseSymptom();
+    updateData(sessionData);
+
+    setState(() {
+      isLoading = false; // 로딩 상태 비활성화
+    });
+  }
+
   // 백에 증상 채팅 입력 보내고 처리.
   Future<SessionData?> responseSymptom() async {
-    String text = _chatControlloer.text; // 현재 텍스트 필드의 텍스트 추출
     _chatControlloer.clear(); // 텍스트 필드 클리어
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/primary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
         body: json.encode(
             {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
@@ -100,6 +135,7 @@ class _GptPageState extends State<GptPage> {
             questions: questions);
 
         SessionID = sessionData.sessionId;
+        selectedCard = true; // 선지 생성됨.
         // Optionally print or return session data
         // print('Session ID: ${sessionData.sessionId}');
         // print('Symptoms: ${sessionData.symptoms}');
@@ -116,23 +152,7 @@ class _GptPageState extends State<GptPage> {
     return null;
   }
 
-// 단순히 맨 위에 입력한 증상 띄움. + 백에 전송하는 함수 호출.
-  _sendMessage() async {
-    setState(() {
-      String text = _chatControlloer.text;
-      userSymptomChat.add(text); // 메시지 목록에 텍스트 추가
-    });
-    SessionData? sessionData = await responseSymptom();
-    updateData(sessionData);
-  }
-
-  bool selectedCard = false; // 선지가 생성됐는지
-  bool recieveResult = false; // 결과가 도착했는지
-  Key nextKey = UniqueKey(); // 다음으로 이동
-
-  Map<String, String> contents = {}; //ID:값
-
-  // 백엔드에서 데이터를 받아서 업데이트
+  // 백엔드에서 데이터를 받아서 업데이트 (채팅 입력 후 선지 생성)
   void updateData(SessionData? sessionData) {
     Map<String, String> newData = {}; // 새로운 데이터 리스트
     Map<String, bool> newCardSelections = {}; // 새로운 선택 리스트
@@ -147,205 +167,15 @@ class _GptPageState extends State<GptPage> {
       contents = newData; // 기존 데이터를 새 데이터로 교체
       cardSelections = newCardSelections; // 기존 선택을 새 선택으로 교체
       nextKey = UniqueKey(); // 버튼에 새로운 키를 할당하여 변화를 강제
-      selectedCard = true; // 선지 생성됨.
     });
   }
 
-  List<String> userSymptomChat = []; // 사용자의 채팅입력(증상)
-  final TextEditingController _chatControlloer = TextEditingController();
-
-  void finalResult() {
-    recieveResult = true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xffEDEEFF),
-                ),
-                child: const Column(// 채팅 기록 추가할 수 있어야 함.
-                    ),
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  image: DecorationImage(
-                    image: AssetImage('assets/logo.png'),
-                    colorFilter:
-                        ColorFilter.mode(Colors.white24, BlendMode.dstATop),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1, // 채팅 입력하면 보여주는 구역.
-                        child: Column(
-                          children: <Widget>[
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: userSymptomChat.length,
-                                itemBuilder: (context, index) => Container(
-                                  color: const Color(0xffEDEEFF),
-                                  child: ListTile(
-                                    title: Text(
-                                      userSymptomChat[index],
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        children: [
-                          if (selectedCard) // 선지가 생성됐을 때 출력.
-                            const Text(
-                              "아래 해당되는 항목을 눌러보세요!",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w900),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Expanded(
-                        // 선지 선택 카드
-                        flex: 8,
-                        // Expanded 위젯을 사용하여 Column 내에서 GridView가 차지할 공간을 유동적으로 할당
-                        child: Column(
-                          children: [
-                            if (!recieveResult)
-                              Expanded(
-                                // GridView를 스크롤 가능하게 하기 위해 Expanded로 감쌈.
-                                child: GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2, // 한 줄에 카드 2개씩 배치
-                                    childAspectRatio: 5 / 1, //item 의 가로 세로의 비율
-                                    crossAxisSpacing: 25, // 카드 간 가로 간격
-                                    mainAxisSpacing: 25, // 카드 간 세로 간격
-                                  ),
-                                  itemCount: contents.length,
-                                  itemBuilder: (context, index) {
-                                    var entry =
-                                        contents.entries.elementAt(index);
-                                    return SelectCard(
-                                      content: entry.value,
-                                      isInverted: cardSelections[entry.key]!,
-                                      toggleInvert: () =>
-                                          toggleCardState(entry.key),
-                                    );
-                                  },
-                                ),
-                              )
-                            else
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: resultlength,
-                                  itemBuilder: (context, index) {
-                                    return ResultCard(
-                                        disease: diseases[index],
-                                        description: descriptions[index],
-                                        dept: departments[index],
-                                        n: index);
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        // 진단 받기 버튼
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            //if (selectedCard) // 백이랑 합치고 주석 해제.
-                            if (!recieveResult) // 최종 결과 안 나올 때까지
-                              (AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                  ),
-                                  key: nextKey, // 버튼이 변경될 때마다 새 키 사용
-                                  onPressed: _sendResponse,
-                                  child: const Text(
-                                    '진단 받아보기 >',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              )),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1, // 증상 채팅 입력바
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              color: const Color(0xffF1F1F1),
-                              child: TextField(
-                                controller: _chatControlloer,
-                                onSubmitted: (_) => _sendMessage(),
-                                decoration: InputDecoration(
-                                  labelText: '증상을 입력하세요.',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 20.0),
-                                  suffixIcon: IconButton(
-                                    icon: const Icon(Icons.send),
-                                    onPressed: _sendMessage,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ), // 여기에 다른 위젯 추가 가능
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  int resultlength = 0;
-  List<String> diseases = [];
-  List<String> departments = [];
-  List<String> descriptions = [];
-
-  //  백에 전송하는 함수 호출.
+  // 선택한 선지 백에 전송하는 함수 호출.
   _sendResponse() async {
+    setState(() {
+      isLoading = true; // 로딩 상태 활성화
+    });
+
     ResultData? resultData = await responseQuestion();
 
     if (resultData != null) {
@@ -359,10 +189,13 @@ class _GptPageState extends State<GptPage> {
       }
     }
 
-    resultlength = diseases.length;
+    setState(() {
+      resultlength = diseases.length;
+      isLoading = false; // 로딩 상태 비활성화
+    });
   }
 
-// 질문 선택 결과 백에 전송.
+  // 질문 선택 결과 백에 전송.
   Future<ResultData?> responseQuestion() async {
     // SelectCard에서 가져온 선택값
 
@@ -370,8 +203,7 @@ class _GptPageState extends State<GptPage> {
       print(cardSelections
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse(
-            'https://port-0-apayo-rm6l2llvw7woh4.sel5.cloudtype.app/secondary_disease_prediction/'),
+        Uri.parse('http://52.79.91.82/secondary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
@@ -382,7 +214,6 @@ class _GptPageState extends State<GptPage> {
 
       // JSON 응답 객체에서 'response' 키를 통해 질병 정보를 추출
       if (response.statusCode == 200) {
-        recieveResult = true;
         var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
 
         // response 객체에서 각 질병 정보를 추출
@@ -398,7 +229,8 @@ class _GptPageState extends State<GptPage> {
 
         // 응답 데이터를 사용하여 ResultData 객체를 생성
         var resultData = ResultData(diseaseInfo: diseaseInfoList);
-
+        recieveResult = true;
+        attempt = true;
         return resultData;
       } else {
         print('Request failed with status: ${response.statusCode}.');
@@ -407,5 +239,216 @@ class _GptPageState extends State<GptPage> {
       print('Caught an error: $e');
     }
     return null;
+  }
+
+  // UI build
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xffEDEEFF),
+                    ),
+                    child: const Column(// 채팅 기록 추가할 수 있어야 함.
+                        ),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      image: DecorationImage(
+                        image: AssetImage('assets/logo.png'),
+                        colorFilter:
+                            ColorFilter.mode(Colors.white24, BlendMode.dstATop),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: <Widget>[
+                          Expanded(
+                            flex: 1, // 채팅 입력하면 보여주는 구역.
+                            child: Column(
+                              children: [
+                                Container(
+                                  // 화면크기에 맞게 container 조정.
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xffEDEEFF),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: Text(
+                                    text,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Column(
+                            children: [
+                              if (selectedCard &&
+                                  !recieveResult) // 선지가 생성됐을 때 출력.
+                                const Text(
+                                  "아래 해당되는 항목을 눌러보세요!",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Expanded(
+                            flex: 8,
+                            // Expanded 위젯을 사용하여 Column 내에서 GridView가 차지할 공간을 유동적으로 할당
+                            child: Column(
+                              children: [
+                                if (!recieveResult) // 선지 선택 카드
+                                  Expanded(
+                                    // GridView를 스크롤 가능하게 하기 위해 Expanded로 감쌈.
+                                    child: GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2, // 한 줄에 카드 2개씩 배치
+                                        childAspectRatio:
+                                            8 / 3, //item 의 가로 세로의 비율
+                                        crossAxisSpacing: 20, // 카드 간 가로 간격
+                                        mainAxisSpacing: 20, // 카드 간 세로 간격
+                                      ),
+                                      itemCount: contents.length,
+                                      itemBuilder: (context, index) {
+                                        var entry =
+                                            contents.entries.elementAt(index);
+                                        return SelectCard(
+                                          content: entry.value,
+                                          isInverted:
+                                              cardSelections[entry.key]!,
+                                          toggleInvert: () =>
+                                              toggleCardState(entry.key),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                else // 결과 카드
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: resultlength,
+                                      itemBuilder: (context, index) {
+                                        return ResultCard(
+                                            disease: diseases[index],
+                                            description: descriptions[index],
+                                            dept: departments[index],
+                                            n: index);
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            // 진단 받기 버튼
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (!recieveResult &&
+                                    selectedCard) // 최종 결과 나오지 않고, 선지가 생성됐을 때 진단받기 버튼 생성.
+                                  (AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 500),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.black,
+                                      ),
+                                      key: nextKey, // 버튼이 변경될 때마다 새 키 사용
+                                      onPressed: _sendResponse,
+                                      child: const Text(
+                                        '진단 받아보기 >',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1, // 증상 채팅 입력바
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  color: const Color(0xffF1F1F1),
+                                  child: TextField(
+                                    controller: _chatControlloer,
+                                    onSubmitted: (_) =>
+                                        attempt // 이미 시도하여 new chat을 해야하는 경우.
+                                            ? PopupMessage(
+                                                    '\'new chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                .showPopup(context)
+                                            : _sendMessage(), // 증상 입력 시도를 한 번 하면 새로운 채팅 만들라는 메시지 출력
+                                    decoration: InputDecoration(
+                                      labelText: '증상을 입력하세요.',
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 20.0),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.send),
+                                        onPressed: () =>
+                                            attempt // 이미 시도하여 new chat을 해야하는 경우.
+                                                ? PopupMessage(
+                                                        '\'new chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                    .showPopup(context)
+                                                : _sendMessage(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ), // 여기에 다른 위젯 추가 가능
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (isLoading) // 로딩 상태일 때 CircularProgressIndicator 표시
+              Offstage(
+                offstage: !isLoading,
+                child: const Stack(
+                  children: [
+                    ModalBarrier(dismissible: false, color: Colors.black45),
+                    Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

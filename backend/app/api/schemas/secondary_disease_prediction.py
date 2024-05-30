@@ -1,5 +1,5 @@
-from pydantic import BaseModel, field_validator, Field
-from typing import List, Dict
+from pydantic import BaseModel
+from typing import Dict
 from uuid import uuid4
 
 
@@ -16,7 +16,3 @@ class PredictedDisease(BaseModel):
     Disease: str
     recommended_department: str
     description: str
-
-
-# class FinalResponse(BaseModel):
-#     response: Dict[str, PredictedDisease]

@@ -1,8 +1,10 @@
-from firebase_admin import firestore
+from pymongo import MongoClient
 from api.schemas.disease_prediction_session import DiseasePredictionSession
 from typing import Dict
 from datetime import datetime
+from core.config import get_settings
 
+settings = get_settings()
 
 class SessionManager:
     _sessions_cache = {}
@@ -11,34 +13,31 @@ class SessionManager:
     @staticmethod
     def get_db():
         if SessionManager._db is None:
-            SessionManager._db = firestore.client()
+            client = MongoClient(settings.mongo_uri)
+            SessionManager._db = client['disease_prediction_db']
         return SessionManager._db
 
     @staticmethod
     def create_session(user_id: str) -> DiseasePredictionSession:
-        """Create a new session and save it to Firestore."""
+        """Create a new session and save it to MongoDB."""
         db = SessionManager.get_db()
 
         new_session = DiseasePredictionSession(user_id=user_id)
         session_data = new_session.model_dump()
-        session_ref = db.collection("disease_prediction_sessions").document(
-            new_session.session_id
-        )
-        session_ref.set(session_data)
+        db.disease_prediction_sessions.insert_one(session_data)
         # Cache the session locally
         SessionManager._sessions_cache[new_session.session_id] = new_session
         return new_session
 
     @staticmethod
     def get_session(session_id: str) -> DiseasePredictionSession:
-        """Retrieve a session from the local cache or Firestore."""
+        """Retrieve a session from the local cache or MongoDB."""
         db = SessionManager.get_db()
 
         if session_id in SessionManager._sessions_cache:
             return SessionManager._sessions_cache[session_id]
 
-        session_ref = db.collection("disease_prediction_sessions").document(session_id)
-        session_data = session_ref.get().to_dict()
+        session_data = db.disease_prediction_sessions.find_one({"session_id": session_id})
         print(session_data)
         if session_data:
             session = DiseasePredictionSession(**session_data)
@@ -48,7 +47,7 @@ class SessionManager:
 
     @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):
-        """Update an existing session both locally and in Firestore using to_firestore_dict."""
+        """Update an existing session both locally and in MongoDB."""
         db = SessionManager.get_db()
         session = SessionManager.get_session(session_id)
         if not session:
@@ -60,23 +59,13 @@ class SessionManager:
 
         session.updated_at = datetime.now()
 
-        # Convert the entire session to a dictionary format suitable for Firestore
+        # Convert the entire session to a dictionary format suitable for MongoDB
         updated_session_data = session.model_dump()
         # Update the local cache
         SessionManager._sessions_cache[session_id] = session
 
-        # Update Firestore
-        session_ref = db.collection("disease_prediction_sessions").document(session_id)
-        session_ref.update(updated_session_data)
-
-    @staticmethod
-    def assign_secondary_symptoms(session_id: str, responses: Dict[str, str]):
-        """Assign secondary symptoms to a session and update the session."""
-        if session_id in SessionManager._sessions_cache:
-            session = SessionManager._sessions_cache[session_id]
-            session.assign_secondary_symptoms(responses)
-            SessionManager.update_session(
-                session_id, {"secondary_symptoms": session.secondary_symptoms}
-            )
-        else:
-            raise ValueError("Session not found")
+        # Update MongoDB
+        db.disease_prediction_sessions.update_one(
+            {"session_id": session_id},
+            {"$set": updated_session_data}
+        )

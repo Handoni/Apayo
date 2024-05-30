@@ -1,12 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/gptchat.dart';
-
-
 import 'package:frontend/signUp_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
+  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
+  void loginUser(BuildContext context) async {
+    String userName = _userNameController.text;
+    String password = _passwordController.text;
+
+    // 로그인 요청을 보낼 URL
+    Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
+
+    // 요청 본문에 포함될 데이터
+    Map<String, dynamic> requestBody = {
+      'userName': userName,
+      'password': password,
+    };
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(requestBody),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const GptPage()));
+      } else {
+        // 로그인 실패
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인에 실패했습니다.')),
+        );
+      }
+    } catch (e) {
+      // 요청 실패
+      print('Error during login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그인에 오류가 발생했습니다. 다시 시도해주세요.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +52,9 @@ class LoginPage extends StatelessWidget {
 
     // 화면 크기에 따라 폰트 크기와 패딩을 동적으로 설정
 
-    double fontSize = screenWidth < 800 ? 18 : 18;
-    double paddingSize = screenWidth < 800 ? 20 : 50;
+    double fontSize = screenWidth < 850 ? 18 : 18;
+    double paddingSize = screenWidth < 850 ? 20 : 50;
+
     double formFieldWidth =
         screenWidth < 800 ? screenWidth * 0.8 : screenWidth * 0.3;
 
@@ -31,7 +69,6 @@ class LoginPage extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
-
             ),
             SizedBox(width: 10),
             Text(
@@ -100,7 +137,7 @@ class LoginPage extends StatelessWidget {
                             obscureText: true, // 비번 가리기
                           ),
                           // 로그인 버튼 *******************************
-                          SizedBox(height: screenHeight * 0.06),
+                          SizedBox(height: screenHeight * 0.07),
                           SizedBox(
                             width: formFieldWidth,
                             child: ElevatedButton(
@@ -140,8 +177,8 @@ class LoginPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read APAYO's policy",
@@ -154,17 +191,16 @@ class LoginPage extends StatelessWidget {
 
                           // 회원가입 버튼 ******************************
                           SizedBox(height: screenHeight * 0.03),
-                          Container(
+                          SizedBox(
                             width: formFieldWidth,
                             child: OutlinedButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SignUpPage(),
+                                    builder: (context) => SignUpPage(),
                                   ),
                                 );
-
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
@@ -194,7 +230,7 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: screenHeight * 0.9), // 이미지 상단 간격 조정
-            MediaQuery.of(context).size.width >= 600
+            MediaQuery.of(context).size.width >= 850
                 ? Expanded(
                     child: Center(
                       child: Visibility(
