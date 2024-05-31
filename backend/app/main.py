@@ -12,11 +12,8 @@ app.include_router(user_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://apayo-d426b.firebaseapp.com/",
-        "https://apayo-d426b.web.app/",
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://localhost:8080",
+        "http://52.79.91.82",
+        "http://52.79.91.82:80",
     ],
     allow_credentials=True,
     allow_methods=["*"],  # 모든 HTTP 메서드 허용
