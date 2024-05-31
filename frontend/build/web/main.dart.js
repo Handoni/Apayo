@@ -83658,7 +83658,7 @@ A4(){var s=0,r=A.P(t.bU),q,p=2,o,n=this,m,l,k,j,i,h,g,f,e,d
 var $async$A4=A.Q(function(a,b){if(a===1){o=b
 s=p}while(true)switch(s){case 0:n.Q.on(B.OM)
 p=4
-h=A.f3("http://52.79.91.82/primary_disease_prediction/")
+h=A.f3("http://52.79.91.82/api/primary_disease_prediction/")
 g=t.N
 f=A.as(["Content-Type","application/json"],g,g)
 s=7
@@ -83710,7 +83710,7 @@ var $async$A3=A.Q(function(a,b){if(a===1){o=b
 s=p}while(true)switch(s){case 0:p=4
 g=t.N
 A.je(n.d.l1(0,new A.aeC(),g,g))
-f=A.f3("http://52.79.91.82/secondary_disease_prediction/")
+f=A.f3("http://52.79.91.82/api/secondary_disease_prediction/")
 e=A.as(["Content-Type","application/json"],g,g)
 s=7
 return A.Y(A.ao8(f,B.bA.kB(A.as(["session_id",$.as5,"responses",n.d.l1(0,new A.aeD(),g,g)],g,t.K)),e),$async$A3)

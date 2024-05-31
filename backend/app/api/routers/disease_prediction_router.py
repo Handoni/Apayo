@@ -16,12 +16,12 @@ router = APIRouter()
 
 
 @router.post(
-    "/primary_disease_prediction/", response_model=PrimaryDiseasePredictionResponse
+    "/api/primary_disease_prediction/", response_model=PrimaryDiseasePredictionResponse
 )
 async def disease_prediction_endpoint(input_data: UserSymptomInput):
     return await primary_disease_prediction(input_data)
 
 
-@router.post("/secondary_disease_prediction/", response_model=PredictedDisease)
+@router.post("/api/secondary_disease_prediction/", response_model=PredictedDisease)
 async def secondary_disease_prediction_endpoint(input_data: UserQuestionResponse):
     return await secondary_disease_prediction(input_data)
