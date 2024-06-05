@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/popup.dart';
 import 'package:frontend/widgets/result_card.dart';
@@ -46,6 +47,38 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
+  // 새 채팅 시작 버튼이 눌렸을 때 호출
+  void startNewChat() {
+    resetValue(); // 변수값 초기화
+    setState(() {
+      nextKey = UniqueKey(); // UI 갱신을 위한 새로운 키 할당
+      // UI를 완전히 초기 상태로 리셋
+    });
+  }
+
+  // new chat 시 변수값을 초기화.
+  void resetValue() {
+    cardSelections = {}; //id:선택여부
+    isLoading = false; // 로딩 상태를 관리하는 변수
+    text = ''; // 사용자가 입력한 증상 채팅 저장하는 변수
+    attempt = false; // 채팅 시도 여부
+    contents = {}; // 선지 데이터 초기화
+    selectedCard = false; // 선지가 생성됐는지
+    recieveResult = false; // 결과가 도착했는지
+    SessionID = 'null'; // 세션 ID 초기화
+
+    //결과 담는 변수들
+    resultlength = 0;
+    diseases = [];
+    departments = [];
+    descriptions = [];
+
+    // 입력 필드 초기화
+    _chatControlloer.clear();
+
+    setState(() {});
+  }
+
   Map<String, bool> cardSelections = {}; //id:선택여부
   bool isLoading = false; // 로딩 상태를 관리하는 변수
 
@@ -256,8 +289,28 @@ class _GptPageState extends State<GptPage> {
                     decoration: const BoxDecoration(
                       color: Color(0xffEDEEFF),
                     ),
-                    child: const Column(// 채팅 기록 추가할 수 있어야 함.
+                    child: Column(children: [
+                      Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: const Color(0xffB1B3F4)),
+                          onPressed: () {
+                            startNewChat();
+                          },
+                          child: AutoSizeText(
+                            'New Chat',
+                            maxFontSize: 20,
+                            minFontSize: 5,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.02),
+                          ),
                         ),
+                      )
+                    ]),
                   ),
                 ),
                 Expanded(
