@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from api.schemas.disease_prediction_session import DiseasePredictionSession
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
 from core.config import get_settings
 
@@ -30,7 +30,7 @@ class SessionManager:
         return new_session
 
     @staticmethod
-    def get_session(session_id: str) -> DiseasePredictionSession:
+    def get_session_by_id(session_id: str) -> DiseasePredictionSession:
         """Retrieve a session from the local cache or MongoDB."""
         db = SessionManager.get_db()
 
@@ -38,18 +38,31 @@ class SessionManager:
             return SessionManager._sessions_cache[session_id]
 
         session_data = db.disease_prediction_sessions.find_one({"session_id": session_id})
-        print(session_data)
         if session_data:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session
             return session
+        raise ValueError("Session not found")
+    
+    @staticmethod
+    def get_session_by_user(user_id: str) -> List[DiseasePredictionSession]:
+        """Retrieve a session from the local cache or MongoDB."""
+        db = SessionManager.get_db()
+
+        session_data = list(db.disease_prediction_sessions.find({"user_id": user_id}))
+        sessions = []
+        if session_data:
+            for data in session_data:
+                session = DiseasePredictionSession(**data)
+                sessions.append(session)
+            return sessions
         raise ValueError("Session not found")
 
     @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):
         """Update an existing session both locally and in MongoDB."""
         db = SessionManager.get_db()
-        session = SessionManager.get_session(session_id)
+        session = SessionManager.get_session_by_id(session_id)
         if not session:
             raise ValueError("Session not found")
 

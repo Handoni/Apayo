@@ -8,7 +8,6 @@ class TokenData(BaseModel):
     email: str | None = None
 
 class UserCreate(BaseModel):
-    email: EmailStr
     nickname: str
     password: str
     sex: str
@@ -18,6 +17,12 @@ class UserCreate(BaseModel):
     def validate_sex(cls, v):
         if v not in ['male', 'female']:
             raise ValueError('Sex field must be either "male" or "female".')
+        return v
+    
+    @validator("age")
+    def validate_age(cls, v):
+        if v < 0:
+            raise ValueError('Age field must be a positive integer.')
         return v
 
 class User(BaseModel):
