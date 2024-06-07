@@ -12,6 +12,53 @@ class UserSymptomInput(BaseModel):
     user_id: str
     symptoms: str
 
+#GPT가 응답할 스키마
+PRIMARY_PREDICTION_SCHEMA = {
+    "name": "disease_prediction",
+    "description": "Predicts the disease based on the symptoms",
+    "parameters":{
+        "type": "object",
+        "properties": {
+            "user_input": {
+                "type": "string",
+                "description": "The symptoms of the user"
+            },
+            "symptoms": {
+                "type": "array",
+                "description": "Extracted symptoms of the user",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "diseases_symptoms_pair": {
+                "type": "array",
+                "description": "The predicted diseases and their additional symptoms",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Disease": {
+                            "type": "object",
+                            "description": "The predicted disease of the user",
+                            "properties": {
+                                "ICD_code": {"type": "string"},
+                                "name": {"type": "string"}
+                            }
+                        },
+                        "Additional Symptoms": {
+                            "type": "array",
+                            "description": "The additional symptoms of the user",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        
+        },
+        "required": ["symptoms","diseases_symptoms_pair"]
+    }
+}
 
 # 프론트에 전달할 응답
 class PrimaryDiseasePredictionResponse(BaseModel):
