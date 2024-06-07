@@ -4,6 +4,9 @@ from api.schemas.user import UserCreate, User, Token
 from services.user_service import create_user, get_user_by_email, authenticate_user
 from utils.jwt_handler import create_access_token, decode_access_token
 import jwt
+from api.schemas.disease_prediction_session import DiseasePredictionSession
+from services.session_service import SessionManager
+from typing import List
 
 router = APIRouter()
 
@@ -17,11 +20,11 @@ def register_user(user: UserCreate):
     
     try:
         user_record = create_user(user)
-        return User(id=user_record['id'], email=user_record['email'], nickname=user_record['nickname'], sex=user_record['sex'], age=user_record['age'])
+        return User(id=user_record['id'], nickname=user_record['nickname'], sex=user_record['sex'], age=user_record['age'])
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/token", response_model=Token)
+@router.post("/login", response_model=Token)
 def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -45,3 +48,7 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
         return User(id=user['id'], email=user['email'], sex=user['sex'], age=user['age'])
     except jwt.PyJWTError:
         raise credentials_exception
+
+@router.get("/sessions/{user_id}", response_model=List[DiseasePredictionSession])
+def get_user_sessions(user_id: str):
+    return SessionManager.get_session_by_user(user_id)
