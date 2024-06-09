@@ -6,6 +6,7 @@ from core.config import get_settings
 
 settings = get_settings()
 
+
 class SessionManager:
     _sessions_cache = {}
     _db = None
@@ -14,7 +15,8 @@ class SessionManager:
     def get_db():
         if SessionManager._db is None:
             client = MongoClient(settings.mongo_uri)
-            SessionManager._db = client['disease_prediction_db']
+            db = client["Apayo"]
+            SessionManager._db = db["disease_prediction_db"]
         return SessionManager._db
 
     @staticmethod
@@ -37,13 +39,15 @@ class SessionManager:
         if session_id in SessionManager._sessions_cache:
             return SessionManager._sessions_cache[session_id]
 
-        session_data = db.disease_prediction_sessions.find_one({"session_id": session_id})
+        session_data = db.disease_prediction_sessions.find_one(
+            {"session_id": session_id}
+        )
         if session_data:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session
             return session
         raise ValueError("Session not found")
-    
+
     @staticmethod
     def get_session_by_user(user_id: str) -> List[DiseasePredictionSession]:
         """Retrieve a session from the local cache or MongoDB."""
@@ -79,6 +83,5 @@ class SessionManager:
 
         # Update MongoDB
         db.disease_prediction_sessions.update_one(
-            {"session_id": session_id},
-            {"$set": updated_session_data}
+            {"session_id": session_id}, {"$set": updated_session_data}
         )
