@@ -74,6 +74,6 @@ def find_similar_symptoms(new_symptoms):
             }
             for i in range(len(new_symptoms))
         ],
-        "common_diseases": list(common_diseases),
+        # "common_diseases": list(common_diseases),
     }
     return result

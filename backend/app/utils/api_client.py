@@ -3,7 +3,10 @@ from openai import OpenAI
 from core.prompt import *
 import json
 
-async def get_gpt_response(input_data: str, system_message: str, schema):
+
+async def get_gpt_response(
+    input_data: str, system_message: str, schema, function_name: str = None
+):
     settings = get_settings()
     GPT_API_KEY = settings.gpt_api_key
     MODEL = "gpt-4o"
@@ -11,7 +14,7 @@ async def get_gpt_response(input_data: str, system_message: str, schema):
     client = OpenAI(
         api_key=GPT_API_KEY,
     )
-    
+
     response = client.chat.completions.create(
         model=MODEL,
         messages=[
@@ -20,7 +23,7 @@ async def get_gpt_response(input_data: str, system_message: str, schema):
         ],
         functions=[schema],
         function_call={
-            "name": "disease_prediction",
+            "name": function_name,
         },
         stop=None,
         temperature=0.5,

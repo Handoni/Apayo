@@ -15,8 +15,7 @@ class SessionManager:
     def get_db():
         if SessionManager._db is None:
             client = MongoClient(settings.mongo_uri)
-            db = client["Apayo"]
-            SessionManager._db = db["disease_prediction_db"]
+            SessionManager._db = client["Apayo"]
         return SessionManager._db
 
     @staticmethod
