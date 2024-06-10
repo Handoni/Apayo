@@ -13,6 +13,17 @@ class LoginPage extends StatelessWidget {
   void loginUser(BuildContext context) async {
     String userName = _userNameController.text;
     String password = _passwordController.text;
+    // 유저네임 또는 비밀번호가 비어 있는 경우
+    if (userName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('아이디를 입력해주세요.')),
+      );
+      if (password.isEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('비밀번호를 입력해주세요.')));
+      }
+      return;
+    }
 
     // 로그인 요청을 보낼 URL
     Uri url = Uri.parse('http://52.79.91.82/api/login');
@@ -79,7 +90,7 @@ class LoginPage extends StatelessWidget {
         title: const Row(
           children: [
             Text(
-              'KIM MINSEO',
+              'APAYO TEAM 6',
               style: TextStyle(
                 color: Color.fromARGB(255, 94, 94, 94),
                 fontSize: 10,
@@ -140,6 +151,7 @@ class LoginPage extends StatelessWidget {
                           //유저이름 *********************************
                           SizedBox(height: screenHeight * 0.06),
                           TextFormField(
+                            controller: _userNameController,
                             decoration: const InputDecoration(
                               labelText: 'User Name',
                             ),
@@ -148,6 +160,7 @@ class LoginPage extends StatelessWidget {
                           //비번 *************************************
                           SizedBox(height: screenHeight * 0.04),
                           TextFormField(
+                            controller: _passwordController,
                             decoration:
                                 const InputDecoration(labelText: 'Password'),
                             obscureText: true, // 비번 가리기

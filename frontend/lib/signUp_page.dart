@@ -89,7 +89,7 @@ class SignUpPage extends StatelessWidget {
           children: [
             // 앱바에 표시될 요소들
             Text(
-              'KIM MINSEO',
+              'APAYO TEAM 6',
               style: TextStyle(
                 color: Color.fromARGB(255, 94, 94, 94),
                 fontSize: 10,
