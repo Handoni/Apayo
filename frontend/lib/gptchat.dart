@@ -289,28 +289,60 @@ class _GptPageState extends State<GptPage> {
                     decoration: const BoxDecoration(
                       color: Color(0xffEDEEFF),
                     ),
-                    child: Column(children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(50),
-                              backgroundColor: const Color(0xffB1B3F4)),
-                          onPressed: () {
-                            startNewChat();
-                          },
-                          child: AutoSizeText(
-                            'New Chat',
-                            maxFontSize: 20,
-                            minFontSize: 5,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.02),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color(0xffB1B3F4)),
+                            onPressed: () {
+                              startNewChat();
+                            },
+                            child: AutoSizeText(
+                              'New Chat',
+                              maxFontSize: 20,
+                              minFontSize: 5,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.02),
+                            ),
                           ),
                         ),
-                      )
-                    ]),
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisSize: MainAxisSize
+                                  .min, // Row가 자식 크기에 맞춰 최소 크기를 가지도록 설정
+                              children: <Widget>[
+                                Icon(
+                                  Icons.logout,
+                                  color: Colors.black,
+                                  size:
+                                      MediaQuery.of(context).size.width * 0.02,
+                                ),
+                                const SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+                                AutoSizeText(
+                                  'Log Out',
+                                  maxFontSize: 20,
+                                  minFontSize: 5,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.02),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
