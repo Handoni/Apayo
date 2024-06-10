@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/login_page.dart';
 import 'package:frontend/widgets/popup.dart';
 import 'package:frontend/widgets/result_card.dart';
 import 'package:frontend/widgets/select_card.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionData {
   final String sessionId;
@@ -143,8 +146,7 @@ class _GptPageState extends State<GptPage> {
       http.Response response = await http.post(
         Uri.parse('http://52.79.91.82/api/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
-        body: json.encode(
-            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
+        body: json.encode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
       );
 
       if (response.statusCode == 200) {
@@ -274,6 +276,17 @@ class _GptPageState extends State<GptPage> {
     return null;
   }
 
+  // LogOut
+  void logoutUser(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('authToken');
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   // UI build
   @override
   Widget build(BuildContext context) {
@@ -315,7 +328,9 @@ class _GptPageState extends State<GptPage> {
                         Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              logoutUser(context);
+                            },
                             child: Row(
                               mainAxisSize: MainAxisSize
                                   .min, // Row가 자식 크기에 맞춰 최소 크기를 가지도록 설정
