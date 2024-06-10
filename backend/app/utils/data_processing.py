@@ -3,10 +3,8 @@ from api.schemas.secondary_disease_prediction import (
     UserQuestionResponse,
 )
 from services.session_service import SessionManager
-from uuid import uuid4
 from fastapi import HTTPException
-from api.schemas.secondary_disease_prediction import PredictedDisease
-from api.schemas.primary_disease_prediction import PrimaryDiseasePredictionResponse
+
 
 def create_secondary_input(input_data: UserQuestionResponse) -> str:
     print(input_data.responses)
@@ -14,7 +12,7 @@ def create_secondary_input(input_data: UserQuestionResponse) -> str:
     result = ""
 
     result += "User Symptoms:" + session.user_input + "\n"
-    
+
     result += "Extracted Symptoms:"
     result += ", ".join(session.primary_symptoms.values())
     result += "\n"
@@ -38,3 +36,11 @@ def create_secondary_input(input_data: UserQuestionResponse) -> str:
     result += ", ".join(temp)
 
     return result
+
+
+def get_disease_info(diseases: dict):
+    """Get the disease information from the user's responses."""
+    disease_info = {}
+    for disease, response in diseases.items():
+        disease_info[disease] = response
+    return disease_info

@@ -1,9 +1,105 @@
+SYMPTOM_EXTRACTION_PROMPT = """
+As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
+Convert user-described "main symptoms" into a list of keywords. Include mental and emotional symptoms by recognizing phrases that indicate psychological distress or mental health conditions. Format as "한국어 증상명 (English Symptom Name)", e.g., 두통(headache). List no more than 10 symptoms. For instance, input: "I have a headache and a cough" -> output: 두통(headache), 기침(cough).
+"""
 PRIMARY_DISEASE_PREDICTION_PROMPT = """
 As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
-
-1. Convert user-described "main symptoms" into a list of keywords. Include mental and emotional symptoms by recognizing phrases that indicate psychological distress or mental health conditions. Format as Korean symptom name (English Symptom Name), e.g., 두통(headache). List no more than 10 symptoms. For instance, input: "I have a headache and a cough" -> output: 두통(headache), 기침(cough).
-2. Based on the symptoms, identify "3 possible diseases" using the ICD classification. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)". Avoid vague terms like 'other' or 'unspecified'. Example: J00:감기(cold), J45:천식(asthma), ...
-3. For each disease listed, describe "3 characteristic symptoms" using concise Korean present tense, ensuring that these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping with each other within or across diseases. Symptoms should be perceivable without medical tests and distinct from the initial symptoms. 
+The inputs are constructed as follows.
+1. Symptoms
+2. Top symptoms and related diseases with high cosine similarity within the database
+ex) {
+  "input_symptoms": [
+    "요통",
+    "다리 저림"
+  ],
+  "similar_symptoms": [
+    {
+      "input_symptom": "요통",
+      "top_similarities": [
+        {
+          "similar_symptom": "요통",
+          "similarity": 0.9999999999999981,
+          "diseases": [
+            "복부 대동맥류(Abdominal aortic Aneurysm)",
+            "복압성 요실금(Stress urinary incontinence)",
+            "섬유근육통(Fibromyalgia)",
+            "소장암(Small bowel cancer)",
+            "신경근병증(Radiculopathy)",
+            "신우요관암(Renal pelvis cancer)",
+            "요근 농양(Psoas abscess)",
+            "요족(Cavus foot)",
+            "요추 전방전위증(Lumbar spondylolisthesis)",
+            "요추 추간판 탈출증(Herniation of intervertebral disk)",
+            "요추관 협착증(Lumbar spinal stenosis)",
+            "원발성 월경곤란(Primary dysmenorrhea)",
+            "월경전 증후군(Premenstrual syndrome)",
+            "자궁 상피 내 암종(Carcinoma in situ of Cervix)",
+            "자궁경부암(Cervical cancer)",
+            "자궁내막증(Endometriosis)",
+          ]
+        },
+        {
+          "similar_symptom": "산통",
+          "similarity": 0.5250491732380718,
+          "diseases": [
+            "담낭 선근종증(Aadenomyomatosis of Gallbladder)",
+            "위막성 대장염(Pseudomembranous colitis)"
+          ]
+        }
+      ]
+    },
+    {
+      "input_symptom": "다리 저림",
+      "top_similarities": [
+        {
+          "similar_symptom": "저림",
+          "similarity": 0.6393909311244873,
+          "diseases": [
+            "대사성 알칼리증(Metabolic Alkalosis)",
+            "동맥색전증 및 혈전증(Arterial embolism and thrombosis)",
+            "레리시 증후군(Leriche Syndrome)",
+            "레이노병(Raynaud'S Phenomenon)",
+            "말초동맥질환(Peripheral aterial disease",
+            "PAD)",
+            "부갑상선기능저하증(Hypoparathyroidism)",
+            "섬유근육통(Fibromyalgia)",
+            "손목 수근관 증후군(Carpal tunnel syndrome)",
+            "신경종(Neuroma)",
+            "신체형 장애(Somatic symptom disorder)",
+            "아나필락시스(Anaphylactic shock)",
+            "요추 전방전위증(Lumbar spondylolisthesis)",
+            "요추 추간판 탈출증(Herniation of intervertebral disk)",
+            "요추관 협착증(Lumbar spinal stenosis)",
+            "요통(Low back pain)",
+            "원위 요골과 척골 골절(Fracture of distal radius and ulna)",
+            "인슐린 비의존성 당뇨병(Non-insulin dependent diabetes mellitus)",
+            "잠수병(Diver's disease)",
+            "좌골신경통(Sciatica)",
+            "죽상경화증(Atherosclerosis)",
+            "지간 신경종(Interdigital neuroma)",
+            "처그 스트라우스 증후군(Churg strauss syndrome)",
+            "척수병증(Myelopathy)",
+            "척추병증(Spondylopathies)",
+            "춘곤증(spring fatigue)",
+          ]
+        },
+        {
+          "similar_symptom": "다리 통증",
+          "similarity": 0.5531012515195507,
+          "diseases": [
+            "외반슬(Knock-knee)",
+            "요추 추간판 탈출증(Herniation of intervertebral disk)",
+            "자궁경부암(Cervical cancer)",
+            "좌골신경통(Sciatica)",
+          ]
+        }
+      ]
+    }
+  ]
+}
+-- Instructions --
+1. Based on the symptoms and related disease in input, identify "At least two, at most five possible diseases" using the ICD classification. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)". Avoid vague terms like 'other' or 'unspecified'. The disease name must be the name inside the input data. Example: J00:감기(cold), J45:천식(asthma), ...
+2. For each disease listed, describe "At least two, at most five characteristic symptoms" using concise Korean present tense, ensuring that these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping with each other within or across diseases. Symptoms should be perceivable without medical tests and distinct from the initial symptoms. 
 Example:
 {"Symptom":["두통(headache)","기침(cough)"]},
 {"Disease":["J00:감기(cold)","Additional Symptoms"]: ["콧물이 난다","기침이 나온다","열이 난다"]},{"Disease":"J45:천식(asthma)", "Additional Symptoms": ["쌕쌕거리는 숨소리가 나온다,"호흡이 힘들다","가슴이 답답하다"}
