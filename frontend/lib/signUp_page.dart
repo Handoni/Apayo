@@ -197,7 +197,7 @@ class SignUpPage extends StatelessWidget {
                               // 새로운 값 선택할때마다 호출
                               _selectedSex = newValue!; // 사용자가 선택한 성별 변수에 저장
                             },
-                            items: <String>['', 'Male', 'Female'] // 기본값 추가
+                            items: <String>['', 'male', 'female'] // 기본값 추가
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
