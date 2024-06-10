@@ -12,7 +12,7 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@router.post("/register", response_model=User)
+@router.post("/api/register/", response_model=User)
 def register_user(user: UserCreate):
     existing_user = get_user_by_nickname(user.nickname)
     if existing_user:
@@ -24,7 +24,7 @@ def register_user(user: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/login", response_model=Token)
+@router.post("/api/login/", response_model=Token)
 def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -33,7 +33,7 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(data={"user_id": user['id']})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/users/me/", response_model=User)
+@router.get("/api/users/me/", response_model=User)
 def read_users_me(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=401,
@@ -49,7 +49,7 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
     except jwt.PyJWTError:
         raise credentials_exception
 
-@router.get("/users/me/sessions", response_model=List[DiseasePredictionSession])
+@router.get("/api/users/me/sessions", response_model=List[DiseasePredictionSession])
 def get_user_sessions(token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
     return SessionManager.get_session_by_user(user_id)
