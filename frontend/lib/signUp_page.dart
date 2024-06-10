@@ -8,30 +8,30 @@ class SignUpPage extends StatelessWidget {
   SignUpPage({super.key});
 
   //컨트롤러, 변수 선언
-  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _nickNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  String _selectedGender = '';
+  String _selectedSex = '';
 
   // Sign Up 누르면 실행
   void signUp(BuildContext context) async {
-    String userName = _userNameController.text; //사용자 입력사항 컨트롤러변수에 저장
+    String nickName = _nickNameController.text; //사용자 입력사항 컨트롤러변수에 저장
     String password = _passwordController.text;
     int age = int.tryParse(_ageController.text) ?? 0;
 
-    if (userName.isNotEmpty &&
+    if (nickName.isNotEmpty &&
         password.isNotEmpty &&
         age > 0 &&
-        _selectedGender != '') {
+        _selectedSex != '') {
       // 서버 요청 대기
       Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
 
       //요청 본문 JSON 형식으로
       Map<String, dynamic> requestBody = {
-        'userName': userName,
+        'nickname': nickName,
         'password': password,
+        'sex': _selectedSex,
         'age': age,
-        'gender': _selectedGender,
       };
 
       try {
@@ -161,9 +161,9 @@ class SignUpPage extends StatelessWidget {
                           //유저이름 *********************************
                           SizedBox(height: screenHeight * 0.03),
                           TextFormField(
-                            controller: _userNameController, // 컨트롤러 설정
+                            controller: _nickNameController, // 컨트롤러 설정
                             decoration: const InputDecoration(
-                              labelText: 'User Name',
+                              labelText: 'Nick Name',
                             ),
                             obscureText: false,
                           ),
@@ -192,10 +192,10 @@ class SignUpPage extends StatelessWidget {
                           SizedBox(height: screenHeight * 0.03),
                           // 사용자가 선택한 성별을 저장하는 변수
                           DropdownButtonFormField<String>(
-                            value: _selectedGender, // 사용자가 선택한 값
+                            value: _selectedSex, // 사용자가 선택한 값
                             onChanged: (String? newValue) {
                               // 새로운 값 선택할때마다 호출
-                              _selectedGender = newValue!; // 사용자가 선택한 성별 변수에 저장
+                              _selectedSex = newValue!; // 사용자가 선택한 성별 변수에 저장
                             },
                             items: <String>['', 'Male', 'Female'] // 기본값 추가
                                 .map<DropdownMenuItem<String>>((String value) {
