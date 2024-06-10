@@ -13,46 +13,34 @@ class LoginPage extends StatelessWidget {
   void loginUser(BuildContext context) async {
     String userName = _userNameController.text;
     String password = _passwordController.text;
-    // 유저네임 또는 비밀번호가 비어 있는 경우
-    if (userName.isEmpty) {
+
+    if (userName.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('아이디를 입력해주세요.')),
+        const SnackBar(content: Text('유저네임과 비밀번호를 입력하세요.')),
       );
-      if (password.isEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('비밀번호를 입력해주세요.')));
-      }
-      return;
+      return; // 입력이 없으면 로그인 요청을 보내지 않음
     }
 
+    print('username: $userName, password: $password');
     // 로그인 요청을 보낼 URL
     Uri url = Uri.parse('http://52.79.91.82/api/login');
 
-    // 요청 본문
-    Map<String, dynamic> requestBody = {
-      'username': userName,
-      'password': password,
-    };
-
-    // form-data로 인코딩
-    String encodedRequestBody = requestBody.entries
-        .map((entry) =>
-            '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
-        .join('&');
-
     try {
-      final response = await http.post(
-        url,
-        body: encodedRequestBody,
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      );
+      var request = http.MultipartRequest('POST', url);
+      request.fields['username'] = userName;
+      request.fields['password'] = password;
+
+      var response = await request.send();
+
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseBody = jsonDecode(response.body);
-        String authToken = responseBody['token']; //응답 토큰 추출
+        var responseBody = await http.Response.fromStream(response);
+        Map<String, dynamic> responseBodyJson = jsonDecode(responseBody.body);
+        String access_token = responseBodyJson['access_token']; // 응답 토큰 추출
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString(
-            'authToken', authToken); //추출된 토큰 ->  SharedPreferences에 저장
+            'access_token', access_token); // 추출된 토큰 -> SharedPreferences에 저장
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const GptPage()),
@@ -200,8 +188,8 @@ class LoginPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor:
-                                    WidgetStateProperty.all(Colors.transparent),
+                                overlayColor: MaterialStateProperty.all(
+                                    Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read APAYO's policy",
@@ -236,11 +224,8 @@ class LoginPage extends StatelessWidget {
                                 "don't have account? Sign Up",
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 0, 0, 0),
-
                                   fontSize: fontSize * 0.7,
-
                                   fontWeight: FontWeight.w200,
-                                  //decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),
