@@ -24,7 +24,7 @@ class SignUpPage extends StatelessWidget {
         age > 0 &&
         _selectedSex != '') {
       // 서버 요청 대기
-      Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
+      Uri url = Uri.parse('http://52.79.91.82/register');
 
       //요청 본문 JSON 형식으로
       Map<String, dynamic> requestBody = {
