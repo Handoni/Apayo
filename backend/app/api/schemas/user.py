@@ -28,7 +28,6 @@ class UserCreate(BaseModel):
 class User(BaseModel):
     id: str
     nickname: str
-    email: EmailStr
     sex: str
     age: int
 

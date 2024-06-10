@@ -3,7 +3,7 @@ from api.schemas.disease_prediction_session import DiseasePredictionSession
 from typing import Dict, List
 from datetime import datetime
 from core.config import get_settings
-
+from fastapi import HTTPException
 settings = get_settings()
 
 
@@ -45,7 +45,7 @@ class SessionManager:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session
             return session
-        raise ValueError("Session not found")
+        raise HTTPException(status_code=404, detail="Session not found")
 
     @staticmethod
     def get_session_by_user(user_id: str) -> List[DiseasePredictionSession]:
@@ -59,7 +59,7 @@ class SessionManager:
                 session = DiseasePredictionSession(**data)
                 sessions.append(session)
             return sessions
-        raise ValueError("Session not found")
+        raise HTTPException(status_code=404, detail="Session not found")
 
     @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):

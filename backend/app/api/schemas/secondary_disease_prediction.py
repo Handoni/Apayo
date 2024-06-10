@@ -43,3 +43,8 @@ class PredictedDisease(BaseModel):
     Disease: str
     recommended_department: str
     description: str
+
+class UserFeedback(BaseModel):
+    session_id: str
+    real_disease: str
+    feedback: str
