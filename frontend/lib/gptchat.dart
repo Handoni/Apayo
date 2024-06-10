@@ -143,8 +143,7 @@ class _GptPageState extends State<GptPage> {
       http.Response response = await http.post(
         Uri.parse('http://52.79.91.82/api/primary_disease_prediction/'),
         headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
-        body: json.encode(
-            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
+        body: json.encode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
       );
 
       if (response.statusCode == 200) {
