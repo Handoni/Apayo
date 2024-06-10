@@ -12,7 +12,7 @@ class MyHomePage extends StatelessWidget {
         title: const Row(
           children: [
             Text(
-              'KIM MINSEO',
+              'APAYO TEAM 6',
               style: TextStyle(
                 color: Color.fromARGB(255, 94, 94, 94),
                 fontSize: 10,
