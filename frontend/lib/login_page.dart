@@ -3,6 +3,7 @@ import 'package:frontend/gptchat.dart';
 import 'package:frontend/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -16,20 +17,35 @@ class LoginPage extends StatelessWidget {
     // 로그인 요청을 보낼 URL
     Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
 
-    // 요청 본문에 포함될 데이터
+    // 요청 본문
     Map<String, dynamic> requestBody = {
-      'userName': userName,
+      'username': userName,
       'password': password,
     };
+
+    // form-data로 인코딩
+    String encodedRequestBody = requestBody.entries
+        .map((entry) =>
+            '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}')
+        .join('&');
+
     try {
       final response = await http.post(
         url,
-        body: jsonEncode(requestBody),
-        headers: {'Content-Type': 'application/json'},
+        body: encodedRequestBody,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
       if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String authToken = responseBody['token']; //응답 토큰 추출
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'authToken', authToken); //추출된 토큰 ->  SharedPreferences에 저장
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const GptPage()));
+          context,
+          MaterialPageRoute(builder: (context) => const GptPage()),
+        );
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
