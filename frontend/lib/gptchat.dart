@@ -50,6 +50,19 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
+  String? accessToken; // 로그인 유저 토큰
+
+// 토큰 로드
+  void _loadAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      accessToken = prefs.getString('access_token');
+    });
+
+    // accessToken을 사용하여 요청을 보내거나 다른 로직을 수행할 수 있습니다.
+    print('Loaded access token: $accessToken');
+  }
+
   // 새 채팅 시작 버튼이 눌렸을 때 호출
   void startNewChat() {
     resetValue(); // 변수값 초기화
@@ -88,6 +101,7 @@ class _GptPageState extends State<GptPage> {
   @override
   void initState() {
     super.initState();
+    _loadAccessToken(); // 로큰 로드 함수 호출
     contents.forEach((key, value) {
       cardSelections[key] = false;
     });
@@ -141,14 +155,17 @@ class _GptPageState extends State<GptPage> {
   // 백에 증상 채팅 입력 보내고 처리.
   Future<SessionData?> responseSymptom() async {
     _chatControlloer.clear(); // 텍스트 필드 클리어
+
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
         Uri.parse('http://52.79.91.82/api/primary_disease_prediction/'),
-        headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        }, // POST 요청의 헤더
         body: json.encode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
       );
-
       if (response.statusCode == 200) {
         // 서버 응답 성공 확인
 
@@ -171,10 +188,6 @@ class _GptPageState extends State<GptPage> {
 
         SessionID = sessionData.sessionId;
         selectedCard = true; // 선지 생성됨.
-        // Optionally print or return session data
-        // print('Session ID: ${sessionData.sessionId}');
-        // print('Symptoms: ${sessionData.symptoms}');
-        // print('Questions: ${sessionData.questions}');
 
         // 생성된 SessionData 객체를 반환
         return sessionData;
@@ -239,7 +252,10 @@ class _GptPageState extends State<GptPage> {
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
         Uri.parse('http://52.79.91.82/api/secondary_disease_prediction/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        },
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
           'responses': cardSelections
