@@ -29,6 +29,7 @@ class DiseasePredictionSession(BaseModel):
     final_disease_description: Optional[str] = None
 
     real_disease: Optional[str] = None
+    feedback: Optional[str] = None
 
     def prepare_primary_disease_prediction_response(
         self,

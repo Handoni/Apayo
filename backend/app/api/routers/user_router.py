@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from api.schemas.user import UserCreate, User, Token
-from services.user_service import create_user, get_user_by_email, authenticate_user
+from services.user_service import create_user, authenticate_user, get_user_by_id, get_user_by_nickname
 from utils.jwt_handler import create_access_token, decode_access_token
 import jwt
 from api.schemas.disease_prediction_session import DiseasePredictionSession
@@ -12,9 +12,9 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@router.post("/users/", response_model=User)
+@router.post("/register", response_model=User)
 def register_user(user: UserCreate):
-    existing_user = get_user_by_email(user.email)
+    existing_user = get_user_by_nickname(user.nickname)
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
@@ -28,9 +28,9 @@ def register_user(user: UserCreate):
 def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=400, detail="Invalid nickname or password")
     
-    access_token = create_access_token(data={"sub": user['email']})
+    access_token = create_access_token(data={"user_id": user['id']})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/users/me/", response_model=User)
@@ -41,14 +41,15 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        email = decode_access_token(token)
-        user = get_user_by_email(email)
+        user_id = decode_access_token(token)
+        user = get_user_by_id(user_id)
         if user is None:
             raise credentials_exception
-        return User(id=user['id'], email=user['email'], sex=user['sex'], age=user['age'])
+        return User(id=user['id'], nickname=user['nickname'], sex=user['sex'], age=user['age'])
     except jwt.PyJWTError:
         raise credentials_exception
 
-@router.get("/sessions/{user_id}", response_model=List[DiseasePredictionSession])
-def get_user_sessions(user_id: str):
+@router.get("/users/me/sessions", response_model=List[DiseasePredictionSession])
+def get_user_sessions(token: str = Depends(oauth2_scheme)):
+    user_id = decode_access_token(token)
     return SessionManager.get_session_by_user(user_id)
