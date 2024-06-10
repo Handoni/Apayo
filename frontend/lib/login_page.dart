@@ -157,13 +157,7 @@ class LoginPage extends StatelessWidget {
                           SizedBox(
                             width: formFieldWidth,
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const GptPage()),
-                                );
-                              },
+                              onPressed: () => loginUser(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     const Color.fromARGB(255, 55, 207, 207),
