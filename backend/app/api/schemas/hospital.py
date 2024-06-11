@@ -8,8 +8,8 @@ class HospitalQuery(BaseModel):
     department: str
 
 class HospitalItem(BaseModel):
-    YPos: Optional[str]
-    XPos: Optional[str]
+    xPos: Optional[str]
+    yPos: Optional[str]
     yadmNm: Optional[str]
     telno: Optional[str]
     addr: Optional[str]
