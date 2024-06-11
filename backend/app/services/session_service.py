@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from api.schemas.disease_prediction_session import DiseasePredictionSession
 from typing import Dict, List
 from datetime import datetime
+from api.schemas.user import UserSessionItem, UserSessionResponseBody
 from core.config import get_settings
 from fastapi import HTTPException
 settings = get_settings()
@@ -60,6 +61,22 @@ class SessionManager:
                 sessions.append(session)
             return sessions
         raise HTTPException(status_code=404, detail="Session not found")
+    
+    def get_session_by_user_compact(user_id: str):
+        """Retrieve a session from the local cache or MongoDB."""
+        db = SessionManager.get_db()
+
+        session_data = list(db.disease_prediction_sessions.find({"user_id": user_id}))
+        sessions = []
+        if session_data:
+            for data in session_data:
+                if not data.get('final_diseases'):
+                    continue
+                item = UserSessionItem(session_id=data['session_id'], final_diseases=data['final_diseases'])
+                sessions.append(item)
+            return UserSessionResponseBody(sessions=sessions)
+        if not sessions:
+            raise HTTPException(status_code=404, detail="Session not found")
 
     @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):

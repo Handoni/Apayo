@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel, EmailStr, validator
 
 class Token(BaseModel):
@@ -33,3 +34,9 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
+class UserSessionItem(BaseModel):
+    session_id: str
+    final_diseases: str
+
+class UserSessionResponseBody(BaseModel):
+    sessions: List[UserSessionItem]
