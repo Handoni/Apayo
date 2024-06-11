@@ -103,8 +103,8 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
         {
             "secondary_symptoms": symptoms,
             "final_diseases": response["Disease"],
-            "recommended_department": response["recommended_department"],
-            "final_disease_description": response["description"],
+            "recommended_department": response["Recommended Department"],
+            "final_disease_description": response["Description"],
         },
     )
     return response

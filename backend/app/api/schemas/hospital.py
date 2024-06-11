@@ -13,7 +13,6 @@ class HospitalItem(BaseModel):
     yadmNm: Optional[str]
     telno: Optional[str]
     addr: Optional[str]
-    clCdNm: Optional[str]
 
 class HospitalResponseBody(BaseModel):
     items: List[HospitalItem]
