@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/login_page.dart';
+import 'package:frontend/result_list_class.dart';
 import 'package:frontend/widgets/popup.dart';
 import 'package:frontend/widgets/result_card.dart';
 import 'package:frontend/widgets/select_card.dart';
@@ -59,8 +60,7 @@ class _GptPageState extends State<GptPage> {
       accessToken = prefs.getString('access_token');
     });
 
-    // accessToken을 사용하여 요청을 보내거나 다른 로직을 수행할 수 있습니다.
-    print('Loaded access token: $accessToken');
+    print(accessToken);
   }
 
   // 새 채팅 시작 버튼이 눌렸을 때 호출
@@ -105,6 +105,7 @@ class _GptPageState extends State<GptPage> {
     contents.forEach((key, value) {
       cardSelections[key] = false;
     });
+    futureListInfo = fetchResultListInfo();
   }
 
   void toggleCardState(String id) {
@@ -192,10 +193,17 @@ class _GptPageState extends State<GptPage> {
         // 생성된 SessionData 객체를 반환
         return sessionData;
       } else {
-        print('Request failed with status: ${response.statusCode}.');
+        // 서버 응답 실패 시
+        var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        var errorDetail =
+            errorResponse['detail'] ?? 'An unknown error occurred.';
+
+        // 팝업 메시지 표시
+        PopupMessage(errorDetail).showPopup(context);
       }
     } catch (e) {
-      print('Caught an error: $e');
+      // 네트워크 오류 또는 기타 예외 처리
+      PopupMessage('Caught an error: $e').showPopup(context);
     }
     return null;
   }
@@ -284,10 +292,17 @@ class _GptPageState extends State<GptPage> {
         attempt = true;
         return resultData;
       } else {
-        print('Request failed with status: ${response.statusCode}.');
+        // 서버 응답 실패 시
+        var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        var errorDetail =
+            errorResponse['detail'] ?? 'An unknown error occurred.';
+
+        // 팝업 메시지 표시
+        PopupMessage(errorDetail).showPopup(context);
       }
     } catch (e) {
-      print('Caught an error: $e');
+      // 네트워크 오류 또는 기타 예외 처리
+      PopupMessage('Caught an error: $e').showPopup(context);
     }
     return null;
   }
@@ -302,6 +317,8 @@ class _GptPageState extends State<GptPage> {
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
+
+  late Future<List<ResultInfo>> futureListInfo;
 
   // UI build
   @override
@@ -340,6 +357,36 @@ class _GptPageState extends State<GptPage> {
                                       MediaQuery.of(context).size.width * 0.02),
                             ),
                           ),
+                        ),
+                        // 그 동안 채팅 목록
+                        FutureBuilder<List<ResultInfo>>(
+                          future: futureListInfo,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return const Text('No data available');
+                            } else {
+                              return ListView.builder(
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (context, index) {
+                                  final diseaseInfo = snapshot.data![index];
+                                  return ListTile(
+                                    title: TextButton(
+                                      onPressed: () {
+                                        // 버튼 클릭 시의 동작을 여기에 작성
+                                      },
+                                      child: Text(diseaseInfo.finalDisease),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                          },
                         ),
                         Padding(
                           padding: const EdgeInsets.all(15.0),
