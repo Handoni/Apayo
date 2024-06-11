@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/google_map.dart';
 import 'package:frontend/login_page.dart';
 import 'package:frontend/signUp_page.dart';
 
@@ -15,6 +16,11 @@ class DesktopLayout extends StatelessWidget {
   void _onSignUpPressed(BuildContext context) {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => SignUpPage()));
+  }
+
+  void _onGooglePressed(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => MapScreen()));
   }
 
   @override
@@ -83,6 +89,17 @@ class DesktopLayout extends StatelessWidget {
                     ),
                     child: const Text('Sign Up'),
                   ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () => _onGooglePressed(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 55, 207, 207),
+                      minimumSize: const Size(120, 50),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('구글맵 임시 버튼'),
+                  )
                 ],
               ),
             ),

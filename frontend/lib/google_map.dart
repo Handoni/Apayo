@@ -4,19 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http; // HTTP 요청용
 import 'dart:convert'; // JSON 디코딩용
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MapScreen(),
-    );
-  }
-}
-
 class MapScreen extends StatefulWidget {
   @override
   _MapScreenState createState() => _MapScreenState();
