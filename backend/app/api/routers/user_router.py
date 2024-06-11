@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from api.schemas.user import UserCreate, User, Token
+from api.schemas.user import UserCreate, User, Token, UserSessionResponseBody
 from services.user_service import create_user, authenticate_user, get_user_by_id, get_user_by_nickname
 from utils.jwt_handler import create_access_token, decode_access_token
 import jwt
@@ -49,7 +49,11 @@ def read_users_me(token: str = Depends(oauth2_scheme)):
     except jwt.PyJWTError:
         raise credentials_exception
 
-@router.get("/api/users/me/sessions", response_model=List[DiseasePredictionSession])
+@router.get("/api/users/me/sessions", response_model=UserSessionResponseBody)
 def get_user_sessions(token: str = Depends(oauth2_scheme)):
     user_id = decode_access_token(token)
-    return SessionManager.get_session_by_user(user_id)
+    return SessionManager.get_session_by_user_compact(user_id)
+
+@router.get("/api/session/{session_id}", response_model=DiseasePredictionSession)
+def get_session_by_id(session_id: str, token: str = Depends(oauth2_scheme)):
+    return SessionManager.get_session_by_id(session_id)
