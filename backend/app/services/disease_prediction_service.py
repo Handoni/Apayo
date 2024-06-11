@@ -6,7 +6,6 @@ from api.schemas.primary_disease_prediction import (
     SYMPTOM_EXTRACTION_SCHEMA,
 )
 from api.schemas.secondary_disease_prediction import (
-    PredictedDisease,
     UserQuestionResponse,
     SECONDARY_PREDICTION_SCHEMA,
     UserFeedback,
@@ -108,11 +107,6 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
             "final_disease_description": response["Description"],
         },
     )
-    response = PredictedDisease(
-        Disease=response["Disease"],
-        recommended_department=response["Recommended Department"],
-        description=response["Description"],
-    )
     return response
 
 async def feedback(input_data: UserFeedback):
@@ -152,12 +146,14 @@ async def get_hospitals(input_data: HospitalQuery):
         raise HTTPException(status_code=500, detail="병원 정보를 가져오는데 실패했습니다.")
     if 'body' not in response_data or 'items' not in response_data['body']:
         raise Exception("Invalid response structure")
+    if not response_data['body']['items']:
+        raise HTTPException(status_code=404, detail="주변 병원을 찾을 수 없습니다.")
     
     filtered_items = []
     for item in response_data['body']['items']['item']:
         filtered_item = HospitalItem(
-            YPos=item['YPos'],
-            XPos=item['XPos'],
+            yPos=item['YPos'],
+            xPos=item['XPos'],
             yadmNm=item['yadmNm'],
             telno=item['telno'] if 'telno' in item else None,
             addr=item['addr'] if 'addr' in item else None,
