@@ -25,16 +25,16 @@ SECONDARY_PREDICTION_SCHEMA = {
                 "type": "string",
                 "description": "Predicted Disease"
             },
-            "recommended_department": {
+            "Recommended Department": {
                 "type": "string",
                 "description": "Recommended Department"
             },
-            "description": {
+            "Description": {
                 "type": "string",
                 "description": "Description of the disease"
             }
         },
-        "required": ["Disease", "recommended_department", "description"]
+        "required": ["Disease", "Recommended Department", "Description"]
     }
 }
 
