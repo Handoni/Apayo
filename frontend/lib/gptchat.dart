@@ -5,6 +5,7 @@ import 'package:frontend/login_page.dart';
 import 'package:frontend/result_list_class.dart';
 import 'package:frontend/widgets/popup.dart';
 import 'package:frontend/widgets/result_card.dart';
+import 'package:frontend/widgets/result_list_detail.dart';
 import 'package:frontend/widgets/select_card.dart';
 
 import 'package:http/http.dart' as http;
@@ -51,16 +52,15 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
-  String? accessToken; // 로그인 유저 토큰
+  // 로그인 유저 토큰
+  String? accessToken;
 
-// 토큰 로드
+// 토큰 로드 함수
   void _loadAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       accessToken = prefs.getString('access_token');
     });
-
-    print(accessToken);
   }
 
   // 새 채팅 시작 버튼이 눌렸을 때 호출
@@ -307,7 +307,7 @@ class _GptPageState extends State<GptPage> {
     return null;
   }
 
-  // LogOut
+  // 로그아웃
   void logoutUser(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');
@@ -338,84 +338,116 @@ class _GptPageState extends State<GptPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                minimumSize: const Size.fromHeight(50),
-                                backgroundColor: const Color(0xffB1B3F4)),
-                            onPressed: () {
-                              startNewChat();
-                            },
-                            child: AutoSizeText(
-                              'New Chat',
-                              maxFontSize: 20,
-                              minFontSize: 5,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.02),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(50),
+                                  backgroundColor: const Color(0xffB1B3F4)),
+                              onPressed: () {
+                                startNewChat();
+                              },
+                              child: AutoSizeText(
+                                'New Chat',
+                                maxFontSize: 20,
+                                minFontSize: 5,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.02),
+                              ),
                             ),
                           ),
                         ),
-                        // 그 동안 채팅 목록
-                        FutureBuilder<List<ResultInfo>>(
-                          future: futureListInfo,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return const Text('No data available');
-                            } else {
-                              return ListView.builder(
-                                itemCount: snapshot.data!.length,
-                                itemBuilder: (context, index) {
-                                  final diseaseInfo = snapshot.data![index];
-                                  return ListTile(
-                                    title: TextButton(
-                                      onPressed: () {
-                                        // 버튼 클릭 시의 동작을 여기에 작성
-                                      },
-                                      child: Text(diseaseInfo.finalDisease),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                          },
+                        const SizedBox(
+                          height: 10,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: TextButton(
-                            onPressed: () {
-                              logoutUser(context);
+                        AutoSizeText(
+                          'Previous Conversations',
+                          maxFontSize: 15,
+                          minFontSize: 5,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.02,
+                              color: const Color(0xffB1B3F4)),
+                        ),
+                        // 그 동안 채팅 목록
+                        Expanded(
+                          flex: 7,
+                          child: FutureBuilder<List<ResultInfo>>(
+                            future: futureListInfo,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Text('No data available');
+                              } else {
+                                return ListView.builder(
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    final listInfo = snapshot.data![index];
+                                    return ListTile(
+                                      title: TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ResultlistDetail(
+                                                sessionId: listInfo.sessionId,
+                                                finalDisease:
+                                                    listInfo.finalDisease,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(listInfo.finalDisease),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
                             },
-                            child: Row(
-                              mainAxisSize: MainAxisSize
-                                  .min, // Row가 자식 크기에 맞춰 최소 크기를 가지도록 설정
-                              children: <Widget>[
-                                Icon(
-                                  Icons.logout,
-                                  color: Colors.black,
-                                  size:
-                                      MediaQuery.of(context).size.width * 0.02,
-                                ),
-                                const SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
-                                AutoSizeText(
-                                  'Log Out',
-                                  maxFontSize: 20,
-                                  minFontSize: 5,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.02),
-                                ),
-                              ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: TextButton(
+                              onPressed: () {
+                                logoutUser(context);
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize
+                                    .min, // Row가 자식 크기에 맞춰 최소 크기를 가지도록 설정
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.logout,
+                                    color: const Color(0xffB1B3F4),
+                                    size: MediaQuery.of(context).size.width *
+                                        0.02,
+                                  ),
+                                  const SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+                                  AutoSizeText(
+                                    'Log Out',
+                                    maxFontSize: 20,
+                                    minFontSize: 5,
+                                    style: TextStyle(
+                                        color: const Color(0xffB1B3F4),
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.02),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -565,7 +597,7 @@ class _GptPageState extends State<GptPage> {
                                     onSubmitted: (_) =>
                                         attempt // 이미 시도하여 new chat을 해야하는 경우.
                                             ? PopupMessage(
-                                                    '\'new chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                    '\'New Chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
                                                 .showPopup(context)
                                             : _sendMessage(), // 증상 입력 시도를 한 번 하면 새로운 채팅 만들라는 메시지 출력
                                     decoration: InputDecoration(
@@ -578,7 +610,7 @@ class _GptPageState extends State<GptPage> {
                                         onPressed: () =>
                                             attempt // 이미 시도하여 new chat을 해야하는 경우.
                                                 ? PopupMessage(
-                                                        '\'new chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                        '\'New Chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
                                                     .showPopup(context)
                                                 : _sendMessage(),
                                       ),
