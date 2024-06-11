@@ -1,3 +1,5 @@
+import json
+from api.schemas.hospital import HospitalItem, HospitalQuery, HospitalResponseBody
 from api.schemas.primary_disease_prediction import (
     UserSymptomInput,
     PRIMARY_PREDICTION_SCHEMA,
@@ -8,6 +10,8 @@ from api.schemas.secondary_disease_prediction import (
     SECONDARY_PREDICTION_SCHEMA,
     UserFeedback,
 )
+from core.config import get_settings
+from core.department_code import DEPARTMENT_CODE_MAPPING
 from utils.data_processing import create_secondary_input
 from fastapi import HTTPException
 from core.prompt import (
@@ -21,6 +25,8 @@ from uuid import uuid4
 from utils.api_client import get_gpt_response
 from utils.embedding_processing import find_similar_symptoms
 import logging
+import requests
+import xmltodict
 
 
 logger = logging.getLogger("fastapi_logger")
@@ -33,6 +39,9 @@ async def primary_disease_prediction(user_id: str, input_data: UserSymptomInput)
         SYMPTOM_EXTRACTION_SCHEMA,
         "symptom_extraction",
     )
+
+    if "no symptoms" in extracted_symptoms["symptoms"]:
+        raise HTTPException(status_code=400, detail="No symptoms provided")
     symptoms = {str(uuid4()): i for i in extracted_symptoms["symptoms"]}
 
     similar_symptoms = find_similar_symptoms(extracted_symptoms["symptoms"])
@@ -114,3 +123,40 @@ async def feedback(input_data: UserFeedback):
         },
     )
     return "Feedback received"
+
+async def get_hospitals(input_data: HospitalQuery):
+    base_url = "http://apis.data.go.kr/B551182/hospInfoServicev2"
+    endpoint = f"{base_url}/getHospBasisList"
+    settings = get_settings()
+    if input_data.department not in DEPARTMENT_CODE_MAPPING:
+        raise HTTPException(status_code=400, detail="Invalid department")
+    department_code = DEPARTMENT_CODE_MAPPING[input_data.department]
+    params = {
+        'serviceKey': settings.hospital_api_key,
+        'xPos': input_data.xPos,
+        'yPos': input_data.yPos,
+        'radius': 2000,
+        'dgsbjtCd': department_code,
+    }
+
+    response = requests.get(endpoint, params=params)
+    response_data = xmltodict.parse(response.text)['response']
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Failed to get hospitals")
+    if 'body' not in response_data or 'items' not in response_data['body']:
+        raise Exception("Invalid response structure")
+    
+    filtered_items = []
+    for item in response_data['body']['items']['item']:
+        filtered_item = HospitalItem(
+            YPos=item['YPos'],
+            XPos=item['XPos'],
+            yadmNm=item['yadmNm'],
+            telno=item['telno'] if 'telno' in item else None,
+            addr=item['addr'] if 'addr' in item else None,
+            clCdNm=item['clCdNm'] if 'clCdNm' in item else None,
+        )
+        filtered_items.append(filtered_item)
+    
+    return HospitalResponseBody(items=filtered_items)

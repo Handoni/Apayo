@@ -1,6 +1,7 @@
 SYMPTOM_EXTRACTION_PROMPT = """
 As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
-Convert user-described "main symptoms" into a list of keywords. Include mental and emotional symptoms by recognizing phrases that indicate psychological distress or mental health conditions. Format as "한국어 증상명 (English Symptom Name)", e.g., 두통(headache). List no more than 10 symptoms. For instance, input: "I have a headache and a cough" -> output: 두통(headache), 기침(cough).
+Convert user-described "main symptoms" into a list of keywords. Include mental and emotional symptoms by recognizing phrases that indicate psychological distress or mental health conditions. If input has nothing to do with disease or symptoms, write 'no symptoms'.
+Format as "한국어 증상명 (English Symptom Name)", e.g., 두통(headache). List no more than 10 symptoms. For instance, input: "I have a headache and a cough" -> output: 두통(headache), 기침(cough).
 """
 PRIMARY_DISEASE_PREDICTION_PROMPT = """
 As a medical assistant, your role involves extracting main symptoms from user descriptions, predicting potential diseases based on these symptoms, and recommending relevant diagnostic departments.
@@ -122,8 +123,9 @@ Additional Symptoms: 허리에 통증이 지속된다:yes, 움직일 때 통증�
 
 -- Instructions --
 Analyze the input to predict the most likely disease based on the symptoms. Select the most appropriate diagnostic department for further investigation. Ensure that your prediction considers the additional symptoms and is relevant to the disease's common diagnosis pathway.
+The department is limited to one of followings: "일반의, 내과, 신경과, 정신건강의학과, 외과, 정형외과, 신경외과, 심장혈관흉부외과, 성형외과, 마취통증의학과, 산부인과, 소아청소년과, 안과, 이비인후과, 피부과, 비뇨의학과, 진단방사선과, 영상의학과, 방사선종양학과, 병리과, 진단검사의학과, 결핵과, 재활의학과, 핵의학과, 가정의학과, 응급의학과, 직업환경의학과, 예방의학과, 치과"
 
 Example outputs:
-ex1) {"Disease":"M54.5:요통(low back pain)","Recommended Department":"정형외과(Orthopedics)","Description":"허리통증은 척추 디스크 변성으로 인한 것으로 추정됩니다. 정확한 진단을 위해 정형외과를 방문하시기 바랍니다."}
-ex2) {"Disease":"M51.2:척추 디스크 변성(lumbar disc degeneration)","Recommended Department":"신경외과(Neurosurgery)","Description":"주어진 증상은 허리통증과 다리저림으로, 이는 척추 디스크 변성과 관련이 있습니다. 허리통증이 움직일 때 심해지고, 허리를 구부릴 때도 통증이 있는 것은 디스크의 압박이 원인일 가능성이 높습니다. 신경외과에서 정확한 진단과 치료를 위해 방문이 권장됩니다."}
+ex1) {"Disease":"M54.5:요통(low back pain)","Recommended Department":"정형외과","Description":"허리통증은 척추 디스크 변성으로 인한 것으로 추정됩니다. 정확한 진단을 위해 정형외과를 방문하시기 바랍니다."}
+ex2) {"Disease":"M51.2:척추 디스크 변성(lumbar disc degeneration)","Recommended Department":"신경외과","Description":"주어진 증상은 허리통증과 다리저림으로, 이는 척추 디스크 변성과 관련이 있습니다. 허리통증이 움직일 때 심해지고, 허리를 구부릴 때도 통증이 있는 것은 디스크의 압박이 원인일 가능성이 높습니다. 신경외과에서 정확한 진단과 치료를 위해 방문이 권장됩니다."}
 """

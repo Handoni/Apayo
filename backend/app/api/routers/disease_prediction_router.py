@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from api.schemas.hospital import HospitalQuery, HospitalResponseBody
 from api.schemas.primary_disease_prediction import (
     UserSymptomInput,
     PrimaryDiseasePredictionResponse,
@@ -9,6 +10,7 @@ from api.schemas.secondary_disease_prediction import (
     UserFeedback,
 )
 from services.disease_prediction_service import (
+    get_hospitals,
     primary_disease_prediction,
     secondary_disease_prediction,
     feedback,
@@ -45,3 +47,7 @@ async def secondary_disease_prediction_endpoint(input_data: UserQuestionResponse
 @router.post("/api/feedback/", response_model=str)
 async def feedback_endpoint(input_data: UserFeedback, token: str = Depends(oauth2_scheme)):
     return await feedback(input_data)
+
+@router.post("/api/get_hospitals", response_model=HospitalResponseBody)
+async def get_hospitals_endpoint(input_data: HospitalQuery):
+    return await get_hospitals(input_data)
