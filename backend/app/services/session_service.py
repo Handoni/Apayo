@@ -45,7 +45,7 @@ class SessionManager:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session
             return session
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
 
     @staticmethod
     def get_session_by_user(user_id: str) -> List[DiseasePredictionSession]:

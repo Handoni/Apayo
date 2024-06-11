@@ -40,8 +40,8 @@ async def primary_disease_prediction(user_id: str, input_data: UserSymptomInput)
         "symptom_extraction",
     )
 
-    if "no symptoms" in extracted_symptoms["symptoms"]:
-        raise HTTPException(status_code=400, detail="No symptoms provided")
+    if "no symptoms" in extracted_symptoms["symptoms"] or not extracted_symptoms["symptoms"]:
+        raise HTTPException(status_code=400, detail="증상 정보가 없습니다.")
     symptoms = {str(uuid4()): i for i in extracted_symptoms["symptoms"]}
 
     similar_symptoms = find_similar_symptoms(extracted_symptoms["symptoms"])
@@ -81,7 +81,7 @@ async def primary_disease_prediction(user_id: str, input_data: UserSymptomInput)
 async def secondary_disease_prediction(input_data: UserQuestionResponse):
     session = SessionManager.get_session_by_id(input_data.session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
 
     response = await get_gpt_response(
         create_secondary_input(input_data),
@@ -90,7 +90,7 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
         "disease_prediction",
     )
     if not response:
-        raise HTTPException(status_code=404, detail="failed to get response")
+        raise HTTPException(status_code=404, detail="응답을 받는데 실패했습니다.")
 
     response_pair = list(session.model_dump()["primary_questions"].values())
     merged_dict = {k: v for d in response_pair for k, v in d.items()}
@@ -112,9 +112,9 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
 async def feedback(input_data: UserFeedback):
     session = SessionManager.get_session_by_id(input_data.session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
     if SessionManager.get_session_by_id(input_data.session_id).final_diseases is None:
-        raise HTTPException(status_code=404, detail="Disease not predicted yet")
+        raise HTTPException(status_code=404, detail="질병이 아직 진단되지 않았습니다.")
     SessionManager.update_session(
         session.session_id,
         {
@@ -129,7 +129,7 @@ async def get_hospitals(input_data: HospitalQuery):
     endpoint = f"{base_url}/getHospBasisList"
     settings = get_settings()
     if input_data.department not in DEPARTMENT_CODE_MAPPING:
-        raise HTTPException(status_code=400, detail="Invalid department")
+        raise HTTPException(status_code=400, detail="예기치 못한 진단과명입니다.")
     department_code = DEPARTMENT_CODE_MAPPING[input_data.department]
     params = {
         'serviceKey': settings.hospital_api_key,
@@ -143,7 +143,7 @@ async def get_hospitals(input_data: HospitalQuery):
     response_data = xmltodict.parse(response.text)['response']
 
     if response.status_code != 200:
-        raise HTTPException(status_code=500, detail="Failed to get hospitals")
+        raise HTTPException(status_code=500, detail="병원 정보를 가져오는데 실패했습니다.")
     if 'body' not in response_data or 'items' not in response_data['body']:
         raise Exception("Invalid response structure")
     
