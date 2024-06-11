@@ -6,6 +6,7 @@ from api.schemas.primary_disease_prediction import (
     SYMPTOM_EXTRACTION_SCHEMA,
 )
 from api.schemas.secondary_disease_prediction import (
+    PredictedDisease,
     UserQuestionResponse,
     SECONDARY_PREDICTION_SCHEMA,
     UserFeedback,
@@ -106,6 +107,11 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
             "recommended_department": response["Recommended Department"],
             "final_disease_description": response["Description"],
         },
+    )
+    response = PredictedDisease(
+        Disease=response["Disease"],
+        recommended_department=response["Recommended Department"],
+        description=response["Description"],
     )
     return response
 
