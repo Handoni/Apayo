@@ -78,7 +78,17 @@ class ResultCard extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          AutoSizeText('이 서비스는 단순 참고용으로, 반드시 병원을 내원해 의사의 진단에 따르시길 바랍니다.',
+              maxFontSize: 15,
+              minFontSize: 5,
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: MediaQuery.of(context).size.width * 0.02,
+              ))
         ],
       ),
     );
