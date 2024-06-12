@@ -171,6 +171,7 @@ async def get_hospitals(input_data: HospitalQuery):
             telno=item["telno"] if "telno" in item else None,
             addr=item["addr"] if "addr" in item else None,
             clCdNm=item["clCdNm"] if "clCdNm" in item else None,
+            mdeptSdrCnt=item["mdeptSdrCnt"] if "mdeptSdrCnt" in item else None,
         )
         filtered_items.append(filtered_item)
 
