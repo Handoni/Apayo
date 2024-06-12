@@ -21,8 +21,6 @@ class LoginPage extends StatelessWidget {
       );
       return; // 입력이 없으면 로그인 요청을 보내지 않음
     }
-
-    print('username: $userName, password: $password');
     // 로그인 요청을 보낼 URL
     Uri url = Uri.parse('http://52.79.91.82/api/login');
 
