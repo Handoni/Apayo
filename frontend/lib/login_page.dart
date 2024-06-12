@@ -3,12 +3,13 @@ import 'package:frontend/gptchat.dart';
 import 'package:frontend/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final storage = const FlutterSecureStorage(); // SecureStorage 객체 생성
 
   void loginUser(BuildContext context) async {
     String userName = _userNameController.text;
@@ -35,11 +36,10 @@ class LoginPage extends StatelessWidget {
       if (response.statusCode == 200) {
         var responseBody = await http.Response.fromStream(response);
         Map<String, dynamic> responseBodyJson = jsonDecode(responseBody.body);
-        String access_token = responseBodyJson['access_token']; // 응답 토큰 추출
+        String accessToken = responseBodyJson['access_token']; // 응답 토큰 추출
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'access_token', access_token); // 추출된 토큰 -> SharedPreferences에 저장
+        await storage.write(
+            key: 'access_token', value: accessToken); // SecureStorage에 토큰 저장
 
         Navigator.pushReplacement(
           context,
@@ -188,8 +188,8 @@ class LoginPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read APAYO's policy",
