@@ -7,12 +7,16 @@ class HospitalQuery(BaseModel):
     yPos: float
     department: str
 
+
 class HospitalItem(BaseModel):
     xPos: Optional[str]
     yPos: Optional[str]
     yadmNm: Optional[str]
     telno: Optional[str]
     addr: Optional[str]
+    mdeptSdrCnt: Optional[int]
+    clCdNm: Optional[str]
+
 
 class HospitalResponseBody(BaseModel):
     items: List[HospitalItem]
