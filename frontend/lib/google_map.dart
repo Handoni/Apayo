@@ -22,6 +22,12 @@ class _MapScreenState extends State<MapScreen> {
     _determinePosition();
   }
 
+  @override
+  void dispose() {
+    _overlayEntry?.remove(); //페이지 전환시 오버레이 제거용
+    super.dispose();
+  }
+
   Future<void> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -72,6 +78,7 @@ class _MapScreenState extends State<MapScreen> {
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
       final List<dynamic> items = data['items'];
+      print(response.body);
 
       setState(() {
         _markers = items.map((item) {
@@ -131,8 +138,8 @@ class _MapScreenState extends State<MapScreen> {
                 const SizedBox(height: 5),
                 Text('주소: ${_selectedHospital!['addr']}'),
                 Text('전화번호: ${_selectedHospital!['telno']}'),
-                Text('전문의 수: ${_selectedHospital!['specialistCount']}'),
-                Text('n차 병원: ${_selectedHospital!['hospitalGrade']}'),
+                Text('전문의 수: ${_selectedHospital!['mdeptSdrCnt']}'),
+                Text('${_selectedHospital!['clCdNm']}'),
                 const Align(
                   alignment: Alignment.centerRight,
                 ),
