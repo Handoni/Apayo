@@ -14,6 +14,7 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _currentPosition;
   List<Marker> _markers = [];
   Map<String, dynamic>? _selectedHospital;
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _MapScreenState extends State<MapScreen> {
     final Map<String, dynamic> requestBody = {
       "xPos": _currentPosition!.longitude,
       "yPos": _currentPosition!.latitude,
-      "department": "정형외과"
+      "department": "신경외과"
     };
 
     final response = await http.post(
@@ -88,6 +89,7 @@ class _MapScreenState extends State<MapScreen> {
               setState(() {
                 _selectedHospital = item;
               });
+              _showOverlay();
             },
           );
         }).toList();
@@ -95,6 +97,51 @@ class _MapScreenState extends State<MapScreen> {
     } else {
       throw Exception('Failed to load nearby hospitals');
     }
+  }
+
+  void _showOverlay() {
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+    }
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+// 상세정보 오버레이 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 50,
+        left: 40,
+        right: 40,
+        child: Material(
+          color: Colors.transparent,
+          child: Card(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text(
+                  _selectedHospital!['yadmNm'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text('주소: ${_selectedHospital!['addr']}'),
+                Text('전화번호: ${_selectedHospital!['telno']}'),
+                Text('전문의 수: ${_selectedHospital!['specialistCount']}'),
+                Text('n차 병원: ${_selectedHospital!['hospitalGrade']}'),
+                const Align(
+                  alignment: Alignment.centerRight,
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -135,97 +182,82 @@ class _MapScreenState extends State<MapScreen> {
         titleSpacing: 50, //앱바 왼쪽 간격추가
       ),
       // ~~~~~~~~~~~~~~~~~~~~~~app Bar~~~~~~~~~~~~~~~~~~~~~~~
-
-      body: Column(
+      body: Stack(
         children: [
-          const SizedBox(height: 10),
           Container(
-            width: MediaQuery.of(context).size.width * 0.3,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 218, 230, 255),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(15.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "내 주변에 있는 정형외과",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white,
           ),
-          SizedBox(height: 10),
-          const SizedBox(
-            child: Text(
-              "표시된 전문의 수는 병원 전체의 전문의 수 입니다",
-              style: TextStyle(fontSize: 12, color: Colors.black),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.9, // 가로 크기 조정
-                height: MediaQuery.of(context).size.height * 0.75, // 세로 크기 조정
+          Column(
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.3,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20), // 모서리 둥글게 설정
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 7,
-                      offset: const Offset(0, 1), // 그림자 위치 설정
-                    ),
-                  ],
+                  color: const Color.fromARGB(255, 218, 230, 255),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20), // 모서리 둥글게 설정
-                  child: _currentPosition == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : GoogleMap(
-                          onMapCreated: _onMapCreated,
-                          initialCameraPosition: CameraPosition(
-                            target: _currentPosition!,
-                            zoom: 16.0,
-                          ),
-                          markers: Set<Marker>.of(_markers),
-                          myLocationEnabled: true, // 내 위치 표시
-                          myLocationButtonEnabled: true, // 내 위치 버튼 표시
-                        ),
-                ),
-              ),
-            ),
-          ),
-          if (_selectedHospital != null)
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Card(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(15.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        _selectedHospital!['yadmNm'],
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        "내 주변에 있는 정형외과",
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 5),
-                      Text('주소: ${_selectedHospital!['addr']}'),
-                      Text('전화번호: ${_selectedHospital!['telno']}'),
-                      Text('전문의 수: ${_selectedHospital!['specialistCount']}'),
-                      Text('n차 병원: ${_selectedHospital!['hospitalGrade']}'),
                     ],
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 10),
+              const SizedBox(
+                child: Text(
+                  "표시된 전문의 수는 병원 전체의 전문의 수 입니다. 지도의 핀을 눌러, 병원의 상세정보를 확인해보세요",
+                  style: TextStyle(fontSize: 12, color: Colors.black),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20), // 모서리 둥글게 설정
+                      child: _currentPosition == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : GoogleMap(
+                              onMapCreated: _onMapCreated,
+                              initialCameraPosition: CameraPosition(
+                                target: _currentPosition!,
+                                zoom: 16.0,
+                              ),
+                              markers: Set<Marker>.of(_markers),
+                              // myLocationEnabled: true, // 내 위치 표시  -> 근데 왜 안뜨냐;;
+                              // myLocationButtonEnabled: true, // 내 위치 버튼 표시 -> 얘도 안뜸
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_selectedHospital != null) ...[
+            _createOverlayEntry().builder(context),
+          ]
         ],
       ),
     );
