@@ -1,6 +1,6 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // 최종 결과 리스트
 class ResultInfo {
@@ -19,11 +19,13 @@ class ResultInfo {
 
 // API 호출 함수
 Future<List<ResultInfo>> fetchResultListInfo() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? accessToken = prefs.getString('access_token');
+  const FlutterSecureStorage secureStorage =
+      FlutterSecureStorage(); // SecureStorage 인스턴스 생성
+  String? accessToken =
+      await secureStorage.read(key: 'access_token'); // SecureStorage에서 토큰 로드
 
   if (accessToken == null) {
-    throw Exception('No user id found in SharedPreferences');
+    throw Exception('Access token not found');
   }
 
   final response = await http.get(
@@ -40,8 +42,6 @@ Future<List<ResultInfo>> fetchResultListInfo() async {
     // jsonResponse['sessions']가 List인지 확인
     if (jsonResponse['sessions'] is List) {
       List<dynamic> sessions = jsonResponse['sessions'];
-
-      // null 값 처리 및 타입 확인
       List<ResultInfo> results = sessions
           .where((data) => data != null && data is Map<String, dynamic>)
           .map((data) => ResultInfo.fromJson(data as Map<String, dynamic>))
@@ -51,6 +51,6 @@ Future<List<ResultInfo>> fetchResultListInfo() async {
       throw Exception('Unexpected format: sessions is not a list');
     }
   } else {
-    throw Exception('Failed to load disease info');
+    throw Exception('Failed to load session information');
   }
 }

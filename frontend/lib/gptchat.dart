@@ -8,10 +8,10 @@ import 'package:frontend/widgets/result_card.dart';
 import 'package:frontend/widgets/result_list_detail.dart';
 import 'package:frontend/widgets/select_card.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionData {
   final String sessionId;
@@ -52,14 +52,15 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
+  final FlutterSecureStorage secureStorage =
+      const FlutterSecureStorage(); // SecureStorage 인스턴스 생성
   // 로그인 유저 토큰
   String? accessToken;
-
-// 토큰 로드 함수
+  // 토큰 로드 함수
   void _loadAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = await secureStorage.read(key: 'access_token');
     setState(() {
-      accessToken = prefs.getString('access_token');
+      accessToken = token;
     });
   }
 
@@ -307,10 +308,9 @@ class _GptPageState extends State<GptPage> {
     return null;
   }
 
-  // 로그아웃
+  // 로그아웃 함수
   void logoutUser(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken');
+    await secureStorage.delete(key: 'access_token'); // SecureStorage에서 토큰 삭제
 
     Navigator.pushReplacement(
       context,
@@ -318,6 +318,7 @@ class _GptPageState extends State<GptPage> {
     );
   }
 
+// 사용자 채팅 목록
   late Future<List<ResultInfo>> futureListInfo;
 
   // UI build

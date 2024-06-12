@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 변경
 
 class ResultlistDetail extends StatefulWidget {
   final String sessionId;
@@ -18,6 +17,8 @@ class ResultlistDetail extends StatefulWidget {
 
 class ResultlistDetailState extends State<ResultlistDetail> {
   late Future<Map<String, dynamic>> _sessionDetails;
+  final FlutterSecureStorage secureStorage =
+      const FlutterSecureStorage(); // SecureStorage 인스턴스 생성
 
   @override
   void initState() {
@@ -26,11 +27,11 @@ class ResultlistDetailState extends State<ResultlistDetail> {
   }
 
   Future<Map<String, dynamic>> fetchSessionDetails(String sessionId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? accessToken = prefs.getString('access_token');
+    String? accessToken =
+        await secureStorage.read(key: 'access_token'); // SecureStorage에서 토큰 로드
 
     if (accessToken == null) {
-      throw Exception('No user id found in SharedPreferences');
+      throw Exception('Access token not found');
     }
     final response = await http.get(
       Uri.parse('http://52.79.91.82/api/session/$sessionId'),
