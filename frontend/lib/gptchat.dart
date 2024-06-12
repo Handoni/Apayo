@@ -70,6 +70,7 @@ class _GptPageState extends State<GptPage> {
     setState(() {
       nextKey = UniqueKey(); // UI 갱신을 위한 새로운 키 할당
       // UI를 완전히 초기 상태로 리셋
+      futureListInfo = fetchResultListInfo();
     });
   }
 
