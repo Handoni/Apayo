@@ -103,8 +103,8 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
     }
     response = PredictedDisease(
         Disease=response["Disease"],
-        RecommendedDepartment=response["Recommended Department"],
-        Description=response["Description"],
+        recommended_department=response["Recommended Department"],
+        description=response["Description"],
     )
     SessionManager.update_session(
         session.session_id,
