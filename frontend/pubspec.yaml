@@ -72,8 +72,7 @@ flutter:
   - assets/loginPagePic.png
   - assets/or.png
   - assets/signUpPagePic.png
-
-
+  - assets/map.png
 
   # example:
   # fonts:

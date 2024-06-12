@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
+  final String dept;
+  MapScreen({required this.dept});
+
   @override
   _MapScreenState createState() => _MapScreenState();
 }
@@ -64,7 +67,7 @@ class _MapScreenState extends State<MapScreen> {
     final Map<String, dynamic> requestBody = {
       "xPos": _currentPosition!.longitude,
       "yPos": _currentPosition!.latitude,
-      "department": "신경외과"
+      "department": widget.dept
     };
 
     final response = await http.post(
@@ -78,7 +81,7 @@ class _MapScreenState extends State<MapScreen> {
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
       final List<dynamic> items = data['items'];
-      print(response.body);
+      //print(response.body);
 
       setState(() {
         _markers = items.map((item) {
@@ -114,7 +117,7 @@ class _MapScreenState extends State<MapScreen> {
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-// 상세정보 오버레이 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // 상세정보 오버레이 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   OverlayEntry _createOverlayEntry() {
     return OverlayEntry(
       builder: (context) => Positioned(
@@ -200,18 +203,18 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               const SizedBox(height: 10),
               Container(
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: MediaQuery.of(context).size.width * 0.9,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 218, 230, 255),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(15.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "내 주변에 있는 정형외과",
+                        "내 주변에 있는 ${widget.dept}",
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold),
                       ),
@@ -253,8 +256,8 @@ class _MapScreenState extends State<MapScreen> {
                                 zoom: 16.0,
                               ),
                               markers: Set<Marker>.of(_markers),
-                              // myLocationEnabled: true, // 내 위치 표시  -> 근데 왜 안뜨냐;;
-                              // myLocationButtonEnabled: true, // 내 위치 버튼 표시 -> 얘도 안뜸
+                              myLocationEnabled: true, // 내 위치 표시
+                              myLocationButtonEnabled: true, // 내 위치 버튼 표시
                             ),
                     ),
                   ),
