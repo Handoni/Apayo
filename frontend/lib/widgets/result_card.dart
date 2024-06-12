@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:frontend/google_map.dart';
 
 class ResultCard extends StatelessWidget {
   final String disease, description, dept;
   final int n;
+
+  void _onMapPressed(BuildContext context) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MapScreen(dept: dept)));
+  }
 
   final greybackground = const Color(0xffD9D9D9);
 
@@ -82,13 +88,37 @@ class ResultCard extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          AutoSizeText('이 서비스는 단순 참고용으로, 반드시 병원을 내원해 의사의 진단에 따르시길 바랍니다.',
-              maxFontSize: 15,
-              minFontSize: 5,
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: MediaQuery.of(context).size.width * 0.02,
-              ))
+          AutoSizeText(
+            '이 서비스는 단순 참고용으로, 반드시 병원을 내원해 의사의 진단에 따르시길 바랍니다.',
+            maxFontSize: 15,
+            minFontSize: 5,
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: MediaQuery.of(context).size.width * 0.02,
+            ),
+          ),
+          InkWell(
+            onTap: () => _onMapPressed(context),
+            child: Container(
+              height: 100,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  image: AssetImage('assets/map.png'), // 이미지 경로 설정
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(10), // 모서리 둥글게 설정
+              ),
+              child: const Center(
+                child: Text(
+                  '구글맵 이동버튼',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
