@@ -6,6 +6,7 @@ from api.schemas.primary_disease_prediction import (
     SYMPTOM_EXTRACTION_SCHEMA,
 )
 from api.schemas.secondary_disease_prediction import (
+    PredictedDisease,
     UserQuestionResponse,
     SECONDARY_PREDICTION_SCHEMA,
     UserFeedback,
@@ -40,7 +41,10 @@ async def primary_disease_prediction(user_id: str, input_data: UserSymptomInput)
         "symptom_extraction",
     )
 
-    if "no symptoms" in extracted_symptoms["symptoms"] or not extracted_symptoms["symptoms"]:
+    if (
+        "no symptoms" in extracted_symptoms["symptoms"]
+        or not extracted_symptoms["symptoms"]
+    ):
         raise HTTPException(status_code=400, detail="증상 정보가 없습니다.")
     symptoms = {str(uuid4()): i for i in extracted_symptoms["symptoms"]}
 
@@ -97,7 +101,11 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
     symptoms = {
         symptoms: input_data.responses[id] for id, symptoms in merged_dict.items()
     }
-    print(response)
+    response = PredictedDisease(
+        Disease=response["Disease"],
+        RecommendedDepartment=response["Recommended Department"],
+        Description=response["Description"],
+    )
     SessionManager.update_session(
         session.session_id,
         {
@@ -108,6 +116,7 @@ async def secondary_disease_prediction(input_data: UserQuestionResponse):
         },
     )
     return response
+
 
 async def feedback(input_data: UserFeedback):
     session = SessionManager.get_session_by_id(input_data.session_id)
@@ -124,6 +133,7 @@ async def feedback(input_data: UserFeedback):
     )
     return "Feedback received"
 
+
 async def get_hospitals(input_data: HospitalQuery):
     base_url = "http://apis.data.go.kr/B551182/hospInfoServicev2"
     endpoint = f"{base_url}/getHospBasisList"
@@ -132,33 +142,35 @@ async def get_hospitals(input_data: HospitalQuery):
         raise HTTPException(status_code=400, detail="예기치 못한 진단과명입니다.")
     department_code = DEPARTMENT_CODE_MAPPING[input_data.department]
     params = {
-        'serviceKey': settings.hospital_api_key,
-        'xPos': input_data.xPos,
-        'yPos': input_data.yPos,
-        'radius': 2000,
-        'dgsbjtCd': department_code,
+        "serviceKey": settings.hospital_api_key,
+        "xPos": input_data.xPos,
+        "yPos": input_data.yPos,
+        "radius": 2000,
+        "dgsbjtCd": department_code,
     }
 
     response = requests.get(endpoint, params=params)
-    response_data = xmltodict.parse(response.text)['response']
+    response_data = xmltodict.parse(response.text)["response"]
 
     if response.status_code != 200:
-        raise HTTPException(status_code=500, detail="병원 정보를 가져오는데 실패했습니다.")
-    if 'body' not in response_data or 'items' not in response_data['body']:
+        raise HTTPException(
+            status_code=500, detail="병원 정보를 가져오는데 실패했습니다."
+        )
+    if "body" not in response_data or "items" not in response_data["body"]:
         raise Exception("Invalid response structure")
-    if not response_data['body']['items']:
+    if not response_data["body"]["items"]:
         raise HTTPException(status_code=404, detail="주변 병원을 찾을 수 없습니다.")
-    
+
     filtered_items = []
-    for item in response_data['body']['items']['item']:
+    for item in response_data["body"]["items"]["item"]:
         filtered_item = HospitalItem(
-            yPos=item['YPos'],
-            xPos=item['XPos'],
-            yadmNm=item['yadmNm'],
-            telno=item['telno'] if 'telno' in item else None,
-            addr=item['addr'] if 'addr' in item else None,
-            clCdNm=item['clCdNm'] if 'clCdNm' in item else None,
+            yPos=item["YPos"],
+            xPos=item["XPos"],
+            yadmNm=item["yadmNm"],
+            telno=item["telno"] if "telno" in item else None,
+            addr=item["addr"] if "addr" in item else None,
+            clCdNm=item["clCdNm"] if "clCdNm" in item else None,
         )
         filtered_items.append(filtered_item)
-    
+
     return HospitalResponseBody(items=filtered_items)
