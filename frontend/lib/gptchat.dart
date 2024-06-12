@@ -366,6 +366,7 @@ class _GptPageState extends State<GptPage> {
                           height: 10,
                         ),
                         AutoSizeText(
+                          textAlign: TextAlign.center,
                           'Previous Conversations',
                           maxFontSize: 15,
                           minFontSize: 5,
@@ -421,7 +422,7 @@ class _GptPageState extends State<GptPage> {
                         Expanded(
                           flex: 1,
                           child: Padding(
-                            padding: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: TextButton(
                               onPressed: () {
                                 logoutUser(context);
