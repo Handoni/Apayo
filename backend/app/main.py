@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from api.exceptions.general_exception_handler import setup_exception_handlers
 from api.routers.disease_prediction_router import router as api_router
 from api.routers.user_router import router as user_router
 import uvicorn
@@ -21,10 +22,10 @@ app.add_middleware(
     allow_methods=["*"],  # 모든 HTTP 메서드 허용
     allow_headers=["*"],
 )
-
+setup_exception_handlers(app)
 configure_logging()
 
 app.add_middleware(LoggingMiddleware)
-    
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
