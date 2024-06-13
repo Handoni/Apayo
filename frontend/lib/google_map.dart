@@ -6,7 +6,7 @@ import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
   final String dept;
-  MapScreen({required this.dept});
+  const MapScreen({super.key, required this.dept});
 
   @override
   _MapScreenState createState() => _MapScreenState();

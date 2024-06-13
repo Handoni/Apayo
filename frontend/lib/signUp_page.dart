@@ -51,7 +51,7 @@ class SignUpPage extends StatelessWidget {
         } else {
           //회원가입 실패
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('회원가입에 실패했습니다.')),
+            const SnackBar(content: Text('회원가입에 실패했습니다.')),
           );
         }
       } catch (e) {
@@ -238,8 +238,8 @@ class SignUpPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Already have an account? Login",
