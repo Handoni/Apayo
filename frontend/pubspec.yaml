@@ -41,6 +41,7 @@ dependencies:
   google_maps_flutter: ^2.7.0 # flutter pub add google_maps_flutter 하면 됨
   geolocator: ^12.0.0 # 위치 불러오기용
   web: ^0.5.1
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,7 @@ flutter:
   - assets/or.png
   - assets/signUpPagePic.png
   - assets/map.png
+  - assets/config.json
 
   # example:
   # fonts:
