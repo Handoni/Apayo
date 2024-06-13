@@ -68,9 +68,10 @@ class LoginPage extends StatelessWidget {
           const SnackBar(content: Text('로그인에 실패했습니다.')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       // 요청 실패
       print('Error during login: $e');
+      print(stackTrace); // 에러 로그 출력
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('로그인에 오류가 발생했습니다. 다시 시도해주세요.')),
       );

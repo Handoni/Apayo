@@ -413,7 +413,7 @@ class _GptPageState extends State<GptPage> {
                                 return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
-                              } else if (!snapshot.hasData || snapshot.data ==null||
+                              } else if (!snapshot.hasData ||
                                   snapshot.data!.isEmpty) {
                                 return const Text('No data available');
                               } else {
