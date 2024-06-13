@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="/">
 
   <meta charset="UTF-8">
@@ -34,13 +21,32 @@
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = "2146658910";
+    const serviceWorkerVersion = "131025316";
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
-  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4uENvK0mfa6lIvQFngXHwGp369y-zyoA&libraries=places"></script>
-</script>
 
+  <!-- Load Google Maps API dynamically with API key from config -->
+  <script>
+    window.addEventListener('load', async function() {
+      const apiKey = await fetch('assets/config.json')
+        .then(response => response.json())
+        .then(data => data.googleMapsApiKey)
+        .catch(error => {
+          console.error('Failed to load API key:', error);
+          return null;
+        });
+
+      if (apiKey) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    });
+  </script>
+</head>
 <body>
   <script>
     window.addEventListener('load', function(ev) {
