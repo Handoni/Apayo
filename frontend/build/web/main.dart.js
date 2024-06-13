@@ -27090,7 +27090,7 @@ case 3:l=b
 if(l==null)throw A.c(A.cy("Access token not found"))
 p=t.N
 s=4
-return A.N(A.aCz(A.dT("http://52.79.91.82/api/users/me/sessions/"),A.R(["Authorization","Bearer "+l],p,p)),$async$IT)
+return A.N(A.aCz(A.dT("https://apayo.kro.kr/api/users/me/sessions/"),A.R(["Authorization","Bearer "+l],p,p)),$async$IT)
 case 4:o=b
 if(o.b===200){n=B.ay.d2(0,B.J.d2(0,o.w))
 p=J.at(n)
@@ -90044,7 +90044,7 @@ var $async$DD=A.D(function(b,c){if(b===1){o=c
 s=p}while(true)switch(s){case 0:p=4
 k=t.N
 s=7
-return A.N(A.aCz(A.dT("http://52.79.91.82/api/users/me/"),A.R(["Content-Type","application/json","Authorization","Bearer "+a],k,k)),$async$DD)
+return A.N(A.aCz(A.dT("https://apayo.kro.kr/api/users/me/"),A.R(["Content-Type","application/json","Authorization","Bearer "+a],k,k)),$async$DD)
 case 7:n=c
 A.mC("auth : "+n.b)
 m=!0
@@ -90113,7 +90113,7 @@ while(true)switch(s){case 0:l=p.e
 if(l==null){s=1
 break}o=t.N
 n=A.R(["xPos",l.b,"yPos",l.a,"department",p.a.c],o,t.z)
-l=A.dT("http://52.79.91.82/api/get_hospitals")
+l=A.dT("https://apayo.kro.kr/api/get_hospitals")
 o=A.R(["Content-Type","application/json"],o,o)
 s=3
 return A.N(A.a1c(l,B.ay.jV(n),o),$async$yZ)
@@ -90241,7 +90241,7 @@ Df(){var s=0,r=A.J(t.bU),q,p=2,o,n=this,m,l,k,j,i,h,g,f,e,d,c,b,a
 var $async$Df=A.D(function(a0,a1){if(a0===1){o=a1
 s=p}while(true)switch(s){case 0:n.at.o7(0,B.A8)
 p=4
-f=A.dT("http://52.79.91.82/api/primary_disease_prediction/")
+f=A.dT("https://apayo.kro.kr/api/primary_disease_prediction/")
 e=t.N
 d=A.R(["Content-Type","application/json","Authorization","Bearer "+A.f(n.e)],e,e)
 s=7
@@ -90301,7 +90301,7 @@ s=p}while(true)switch(s){case 0:p=4
 e=n.f
 d=t.N
 A.mC(e.m6(e,new A.ask(),d,d))
-e=A.dT("http://52.79.91.82/api/secondary_disease_prediction/")
+e=A.dT("https://apayo.kro.kr/api/secondary_disease_prediction/")
 c=A.R(["Content-Type","application/json","Authorization","Bearer "+A.f(n.e)],d,d)
 b=$.aBg
 a=n.f
@@ -90544,7 +90544,7 @@ if(J.ce(d)===0||J.ce(c)===0){f=a.ae(t.Pu)
 f.toString
 f.f.mu(B.RN)
 s=1
-break}m=A.dT("http://52.79.91.82/api/login")
+break}m=A.dT("https://apayo.kro.kr/api/login")
 p=4
 l=A.aSx("POST",m)
 l.x.n(0,"username",d)
@@ -90630,7 +90630,7 @@ e=A.aB8(o.e.a.a,null)
 if(e==null)e=0
 s=g.length!==0&&f.length!==0&&e>0&&o.f!==""?2:4
 break
-case 2:n=A.dT("http://52.79.91.82/api/register")
+case 2:n=A.dT("https://apayo.kro.kr/api/register")
 j=t.N
 i=t.z
 m=A.R(["nickname",g,"password",f,"sex",o.f,"age",e],j,i)

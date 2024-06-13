@@ -29,7 +29,7 @@ Future<List<ResultInfo>> fetchResultListInfo() async {
   }
 
   final response = await http.get(
-    Uri.parse('http://52.79.91.82/api/users/me/sessions/'),
+    Uri.parse('https://apayo.kro.kr/api/users/me/sessions/'),
     headers: {
       'Authorization': 'Bearer $accessToken',
     },
