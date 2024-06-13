@@ -407,14 +407,13 @@ class _GptPageState extends State<GptPage> {
                           flex: 7,
                           child: FutureBuilder<List<ResultInfo>>(
                             future: futureListInfo,
-                            initialData: [],
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
-                              } else if (!snapshot.hasData ||
+                              } else if (!snapshot.hasData || snapshot.data ==null||
                                   snapshot.data!.isEmpty) {
                                 return const Text('No data available');
                               } else {
