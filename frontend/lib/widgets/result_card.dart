@@ -100,20 +100,37 @@ class ResultCard extends StatelessWidget {
           InkWell(
             onTap: () => _onMapPressed(context),
             child: Container(
-              height: 100,
+              height: 200,
               decoration: BoxDecoration(
                 image: const DecorationImage(
-                  image: AssetImage('assets/map.png'), // 이미지 경로 설정
+                  image: AssetImage('assets/map.png'),
                   fit: BoxFit.cover,
                 ),
-                borderRadius: BorderRadius.circular(10), // 모서리 둥글게 설정
+                borderRadius: BorderRadius.circular(15),
               ),
-              child: const Center(
-                child: Text(
-                  '구글맵 이동버튼',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5), // 반투명 검정색 오버레이
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15.0, horizontal: 20.0),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(200, 255, 255, 255),
+                      border: Border.all(
+                          color: Color.fromARGB(200, 255, 255, 255),
+                          width: 0.0),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Text(
+                      '내 주변에 있는 $dept 찾아보기',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
               ),
