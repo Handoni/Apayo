@@ -33,45 +33,25 @@ class LoginPage extends StatelessWidget {
 
       if (response.statusCode == 200) {
         var responseBody = await http.Response.fromStream(response);
-        Map<String, dynamic>? responseBodyJson = jsonDecode(responseBody.body);
+        Map<String, dynamic> responseBodyJson = jsonDecode(responseBody.body);
+        String accessToken = responseBodyJson['access_token']; // 응답 토큰 추출
 
-        // responseBodyJson이 null이 아니고, 'access_token' 키가 존재하는지 확인
-        if (responseBodyJson != null &&
-            responseBodyJson.containsKey('access_token')) {
-          String? accessToken = responseBodyJson['access_token']; // 응답 토큰 추출
+        await storage.write(
+            key: 'access_token', value: accessToken); // SecureStorage에 토큰 저장
 
-          if (accessToken != null) {
-            await storage.write(
-              key: 'access_token',
-              value: accessToken,
-            ); // SecureStorage에 토큰 저장
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const GptPage()),
-            );
-          } else {
-            // access_token이 null인 경우 처리
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('로그인에 실패했습니다. 토큰을 확인해주세요.')),
-            );
-          }
-        } else {
-          // 응답에 access_token 키가 없는 경우 처리
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('로그인에 실패했습니다. 응답을 확인해주세요.')),
-          );
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GptPage()),
+        );
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('로그인에 실패했습니다.')),
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       // 요청 실패
       print('Error during login: $e');
-      print(stackTrace); // 에러 로그 출력
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('로그인에 오류가 발생했습니다. 다시 시도해주세요.')),
       );
@@ -206,8 +186,8 @@ class LoginPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read APAYO's policy",
