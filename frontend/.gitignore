@@ -46,3 +46,4 @@ app.*.map.json
 build/*
 !build/web/
 !build/web/**
+build/web/assets/assets/assets.json
