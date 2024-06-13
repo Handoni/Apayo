@@ -407,6 +407,7 @@ class _GptPageState extends State<GptPage> {
                           flex: 7,
                           child: FutureBuilder<List<ResultInfo>>(
                             future: futureListInfo,
+                            initialData: [],
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
