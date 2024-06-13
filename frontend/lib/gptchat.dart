@@ -162,7 +162,7 @@ class _GptPageState extends State<GptPage> {
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
-        Uri.parse('http://52.79.91.82/api/primary_disease_prediction/'),
+        Uri.parse('https://apayo.kro.kr/api/primary_disease_prediction/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken'
@@ -261,7 +261,7 @@ class _GptPageState extends State<GptPage> {
       print(cardSelections
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse('http://52.79.91.82/api/secondary_disease_prediction/'),
+        Uri.parse('https://apayo.kro.kr/api/secondary_disease_prediction/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken'
