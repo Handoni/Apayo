@@ -18,6 +18,7 @@ class _MapScreenState extends State<MapScreen> {
   List<Marker> _markers = [];
   Map<String, dynamic>? _selectedHospital;
   OverlayEntry? _overlayEntry;
+  bool _noHospitalsFound = false;
 
   @override
   void initState() {
@@ -27,7 +28,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    _overlayEntry?.remove(); //페이지 전환시 오버레이 제거용
+    _overlayEntry?.remove(); // 페이지 전환 시 오버레이 제거용
     super.dispose();
   }
 
@@ -81,28 +82,32 @@ class _MapScreenState extends State<MapScreen> {
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
       final List<dynamic> items = data['items'];
-      //print(response.body);
 
       setState(() {
-        _markers = items.map((item) {
-          final LatLng position = LatLng(
-            double.parse(item['yPos']),
-            double.parse(item['xPos']),
-          );
-          return Marker(
-            markerId: MarkerId(item['yadmNm']),
-            position: position,
-            infoWindow: InfoWindow(
-              title: item['yadmNm'],
-            ),
-            onTap: () {
-              setState(() {
-                _selectedHospital = item;
-              });
-              _showOverlay();
-            },
-          );
-        }).toList();
+        if (items.isEmpty) {
+          _noHospitalsFound = true;
+        } else {
+          _noHospitalsFound = false;
+          _markers = items.map((item) {
+            final LatLng position = LatLng(
+              double.parse(item['yPos']),
+              double.parse(item['xPos']),
+            );
+            return Marker(
+              markerId: MarkerId(item['yadmNm']),
+              position: position,
+              infoWindow: InfoWindow(
+                title: item['yadmNm'],
+              ),
+              onTap: () {
+                setState(() {
+                  _selectedHospital = item;
+                });
+                _showOverlay();
+              },
+            );
+          }).toList();
+        }
       });
     } else {
       throw Exception('Failed to load nearby hospitals');
@@ -215,7 +220,7 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       Text(
                         "내 주변에 있는 ${widget.dept}",
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -263,6 +268,14 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
               ),
+              if (_noHospitalsFound)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "근처에 해당 진료과가 없습니다",
+                    style: TextStyle(fontSize: 16, color: Colors.red),
+                  ),
+                ),
             ],
           ),
           if (_selectedHospital != null) ...[
