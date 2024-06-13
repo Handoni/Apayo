@@ -304,7 +304,9 @@ class _GptPageState extends State<GptPage> {
       }
     } catch (e) {
       // 네트워크 오류 또는 기타 예외 처리
-      PopupMessage('Caught an error: $e').showPopup(context);
+      PopupMessage('"Apayo"가 아파요... \n\'New Chat\'버튼을 눌러 다시 대화를 생성해주세요!')
+          .showPopup(context);
+      print('선지 전송했는데... $e');
     }
     return null;
   }
