@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/google_map.dart';
 import 'package:frontend/login_page.dart';
 import 'package:frontend/signUp_page.dart';
 
