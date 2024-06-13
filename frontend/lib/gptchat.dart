@@ -198,7 +198,7 @@ class _GptPageState extends State<GptPage> {
         // 서버 응답 실패 시
         var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
         var errorDetail =
-            errorResponse['detail'] ?? 'An unknown error occurred.';
+            errorResponse['message'] ?? 'An unknown error occurred.';
 
         // 팝업 메시지 표시
         PopupMessage(errorDetail).showPopup(context);
@@ -297,7 +297,7 @@ class _GptPageState extends State<GptPage> {
         // 서버 응답 실패 시
         var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
         var errorDetail =
-            errorResponse['detail'] ?? 'An unknown error occurred.';
+            errorResponse['message'] ?? 'An unknown error occurred.';
 
         // 팝업 메시지 표시
         PopupMessage(errorDetail).showPopup(context);
