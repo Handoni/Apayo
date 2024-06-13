@@ -24,7 +24,7 @@ class SignUpPage extends StatelessWidget {
         age > 0 &&
         _selectedSex != '') {
       // 서버 요청 대기
-      Uri url = Uri.parse('http://52.79.91.82/api/register');
+      Uri url = Uri.parse('https://apayo.kro.kr/api/register');
 
       //요청 본문 JSON 형식으로
       Map<String, dynamic> requestBody = {
@@ -51,7 +51,7 @@ class SignUpPage extends StatelessWidget {
         } else {
           //회원가입 실패
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('회원가입에 실패했습니다.')),
+            const SnackBar(content: Text('회원가입에 실패했습니다.')),
           );
         }
       } catch (e) {
@@ -238,8 +238,8 @@ class SignUpPage extends StatelessWidget {
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Already have an account? Login",

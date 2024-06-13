@@ -6,7 +6,7 @@ import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
   final String dept;
-  MapScreen({required this.dept});
+  const MapScreen({super.key, required this.dept});
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -63,7 +63,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _getNearbyHospitals() async {
     if (_currentPosition == null) return;
-    const String url = 'http://52.79.91.82/api/get_hospitals';
+    const String url = 'https://apayo.kro.kr/api/get_hospitals';
 
     final Map<String, dynamic> requestBody = {
       "xPos": _currentPosition!.longitude,
