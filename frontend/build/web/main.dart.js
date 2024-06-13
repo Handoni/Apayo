@@ -90300,7 +90300,7 @@ s=p}while(true)switch(s){case 0:p=4
 e=n.f
 d=t.N
 A.kO(e.m6(e,new A.ask(),d,d))
-e=A.dT("https://apayo.kro.kr/secondary_disease_prediction/")
+e=A.dT("https://apayo.kro.kr/api/secondary_disease_prediction/")
 c=A.R(["Content-Type","application/json","Authorization","Bearer "+A.f(n.e)],d,d)
 b=$.aBg
 a=n.f
