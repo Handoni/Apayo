@@ -327,6 +327,31 @@ class _GptPageState extends State<GptPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        appBar: AppBar(
+          title: const Row(
+            children: [
+              Text(
+                'APAYO TEAM 6',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 94, 94, 94),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '         RYU SOOJUNG         LEE SANGYUN         HYUN SOYOUNG',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 94, 94, 94),
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          toolbarHeight: 70,
+          titleSpacing: 50, //앱바 왼쪽 간격추가
+        ),
         body: Stack(
           children: [
             Row(
