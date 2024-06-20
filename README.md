@@ -77,7 +77,7 @@ Depending on your environment, you might need to:
 ```
 - Change address for api request
 ```dart
-'https://apayo.kro.kr/api/primary_disease_prediction/'
+'https://apayo.kro.kr/api/...'
 -> 'your-address'
 ```
 
