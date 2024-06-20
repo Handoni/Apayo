@@ -99,7 +99,7 @@ ex) {
   ]
 }
 -- Instructions --
-1. Based on the symptoms and related disease in input, identify "At least two, at most five possible diseases" using the ICD classification. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)". Avoid vague terms like 'other' or 'unspecified'. The disease name must be the name inside the input data. Example: J00:감기(cold), J45:천식(asthma), ...
+1. Based on the symptoms and related disease in input, identify "At least two, at most five possible diseases" using the ICD classification. Make predictions with the input symptoms as the most important consideration, and prioritize common and mild diseases. Ensure that the disease names are explicitly detailed, avoiding generic or nonspecific symptomatic descriptions. List each disease with its ICD code, formatted as "(ICD Code):Disease Name(Disease in English)". Avoid vague terms like 'other' or 'unspecified'. The disease name must be the name inside the input data. Example: J00:감기(cold), J45:천식(asthma), ...
 2. For each disease listed, describe "At least two, at most five characteristic symptoms" using concise Korean present tense, ensuring that these symptoms are unique across all diseases listed, distinct from the initial user-described symptoms, and not overlapping with each other within or across diseases. Symptoms should be perceivable without medical tests and distinct from the initial symptoms. 
 Example:
 {"Symptom":["두통(headache)","기침(cough)"]},
