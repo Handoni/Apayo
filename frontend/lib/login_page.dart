@@ -3,33 +3,46 @@ import 'package:frontend/gptchat.dart';
 import 'package:frontend/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 추가
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final storage = const FlutterSecureStorage(); // SecureStorage 객체 생성
 
   void loginUser(BuildContext context) async {
     String userName = _userNameController.text;
     String password = _passwordController.text;
 
-    // 로그인 요청을 보낼 URL
-    Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
-
-    // 요청 본문에 포함될 데이터
-    Map<String, dynamic> requestBody = {
-      'userName': userName,
-      'password': password,
-    };
-    try {
-      final response = await http.post(
-        url,
-        body: jsonEncode(requestBody),
-        headers: {'Content-Type': 'application/json'},
+    if (userName.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('유저네임과 비밀번호를 입력하세요.')),
       );
+      return; // 입력이 없으면 로그인 요청을 보내지 않음
+    }
+    // 로그인 요청을 보낼 URL
+    Uri url = Uri.parse('https://apayo.kro.kr/api/login');
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.fields['username'] = userName;
+      request.fields['password'] = password;
+
+      var response = await request.send();
+
       if (response.statusCode == 200) {
+        var responseBody = await http.Response.fromStream(response);
+        Map<String, dynamic> responseBodyJson = jsonDecode(responseBody.body);
+        String accessToken = responseBodyJson['access_token']; // 응답 토큰 추출
+
+        await storage.write(
+            key: 'access_token', value: accessToken); // SecureStorage에 토큰 저장
+
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const GptPage()));
+          context,
+          MaterialPageRoute(builder: (context) => const GptPage()),
+        );
       } else {
         // 로그인 실패
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +76,7 @@ class LoginPage extends StatelessWidget {
         title: const Row(
           children: [
             Text(
-              'KIM MINSEO',
+              'APAYO TEAM 6',
               style: TextStyle(
                 color: Color.fromARGB(255, 94, 94, 94),
                 fontSize: 10,
@@ -124,6 +137,7 @@ class LoginPage extends StatelessWidget {
                           //유저이름 *********************************
                           SizedBox(height: screenHeight * 0.06),
                           TextFormField(
+                            controller: _userNameController,
                             decoration: const InputDecoration(
                               labelText: 'User Name',
                             ),
@@ -132,6 +146,7 @@ class LoginPage extends StatelessWidget {
                           //비번 *************************************
                           SizedBox(height: screenHeight * 0.04),
                           TextFormField(
+                            controller: _passwordController,
                             decoration:
                                 const InputDecoration(labelText: 'Password'),
                             obscureText: true, // 비번 가리기
@@ -141,13 +156,7 @@ class LoginPage extends StatelessWidget {
                           SizedBox(
                             width: formFieldWidth,
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const GptPage()),
-                                );
-                              },
+                              onPressed: () => loginUser(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     const Color.fromARGB(255, 55, 207, 207),
@@ -213,11 +222,8 @@ class LoginPage extends StatelessWidget {
                                 "don't have account? Sign Up",
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 0, 0, 0),
-
                                   fontSize: fontSize * 0.7,
-
                                   fontWeight: FontWeight.w200,
-                                  //decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),

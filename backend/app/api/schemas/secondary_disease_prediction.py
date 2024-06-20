@@ -11,8 +11,40 @@ class UserQuestionResponse(BaseModel):
     session_id: str
     responses: Dict[str, str]  # 질문ID:응답
 
+SECONDARY_PREDICTION_SCHEMA = {
+    "name": "disease_prediction",
+    "description": "Predicts the disease based on the symptoms",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "user_input": {
+                "type": "string",
+                "description": "User input, main symptoms, predicted diseases, additional symptoms"
+            },
+            "Disease": {
+                "type": "string",
+                "description": "Predicted Disease"
+            },
+            "Recommended Department": {
+                "type": "string",
+                "description": "Recommended Department"
+            },
+            "Description": {
+                "type": "string",
+                "description": "Description of the disease"
+            }
+        },
+        "required": ["Disease", "Recommended Department", "Description"]
+    }
+}
+
 
 class PredictedDisease(BaseModel):
     Disease: str
     recommended_department: str
     description: str
+
+class UserFeedback(BaseModel):
+    session_id: str
+    real_disease: str
+    feedback: str

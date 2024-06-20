@@ -83,6 +83,7 @@ class DesktopLayout extends StatelessWidget {
                     ),
                     child: const Text('Sign Up'),
                   ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

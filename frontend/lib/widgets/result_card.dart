@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:frontend/google_map.dart';
 
 class ResultCard extends StatelessWidget {
   final String disease, description, dept;
   final int n;
+
+  void _onMapPressed(BuildContext context) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => MapScreen(dept: dept)));
+  }
 
   final greybackground = const Color(0xffD9D9D9);
 
@@ -78,7 +84,58 @@ class ResultCard extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          AutoSizeText(
+            '이 서비스는 단순 참고용으로, 반드시 병원을 내원해 의사의 진단에 따르시길 바랍니다.',
+            maxFontSize: 15,
+            minFontSize: 5,
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: MediaQuery.of(context).size.width * 0.02,
+            ),
+          ),
+          InkWell(
+            onTap: () => _onMapPressed(context),
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  image: AssetImage('assets/map.png'),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5), // 반투명 검정색 오버레이
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15.0, horizontal: 20.0),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(200, 255, 255, 255),
+                      border: Border.all(
+                          color: Color.fromARGB(200, 255, 255, 255),
+                          width: 0.0),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Text(
+                      '내 주변에 있는 $dept 찾아보기',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

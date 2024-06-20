@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     token_secret: str
     token_algorithm: str
     token_expire_minutes: int
+    hospital_api_key: str
 
 def get_settings() -> Settings:
     settings = Settings()  # type: ignore

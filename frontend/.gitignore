@@ -29,7 +29,8 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-
+assets/config.json
+lib/config.dart
 # Symbolication related
 app.*.symbols
 
@@ -41,7 +42,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Firebase
-.firebaserc
-firebase.json
-.firebase/
+# build
+build/*
+!build/web/
+!build/web/**
+build/web/assets/assets/assets.json

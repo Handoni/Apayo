@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel, EmailStr, validator
 
 class Token(BaseModel):
@@ -8,7 +9,6 @@ class TokenData(BaseModel):
     email: str | None = None
 
 class UserCreate(BaseModel):
-    email: EmailStr
     nickname: str
     password: str
     sex: str
@@ -19,13 +19,24 @@ class UserCreate(BaseModel):
         if v not in ['male', 'female']:
             raise ValueError('Sex field must be either "male" or "female".')
         return v
+    
+    @validator("age")
+    def validate_age(cls, v):
+        if v < 0:
+            raise ValueError('Age field must be a positive integer.')
+        return v
 
 class User(BaseModel):
     id: str
     nickname: str
-    email: EmailStr
     sex: str
     age: int
 
     class Config:
         from_attributes = True
+class UserSessionItem(BaseModel):
+    session_id: str
+    final_diseases: str
+
+class UserSessionResponseBody(BaseModel):
+    sessions: List[UserSessionItem]

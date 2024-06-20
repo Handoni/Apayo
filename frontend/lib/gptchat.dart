@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/login_page.dart';
+import 'package:frontend/result_list_class.dart';
 import 'package:frontend/widgets/popup.dart';
 import 'package:frontend/widgets/result_card.dart';
+import 'package:frontend/widgets/result_list_detail.dart';
 import 'package:frontend/widgets/select_card.dart';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -46,15 +52,62 @@ class GptPage extends StatefulWidget {
 SelectCardState? finalSelect;
 
 class _GptPageState extends State<GptPage> {
+  final FlutterSecureStorage secureStorage =
+      const FlutterSecureStorage(); // SecureStorage 인스턴스 생성
+  // 로그인 유저 토큰
+  String? accessToken;
+  // 토큰 로드 함수
+  void _loadAccessToken() async {
+    String? token = await secureStorage.read(key: 'access_token');
+    setState(() {
+      accessToken = token;
+    });
+  }
+
+  // 새 채팅 시작 버튼이 눌렸을 때 호출
+  void startNewChat() {
+    resetValue(); // 변수값 초기화
+    setState(() {
+      nextKey = UniqueKey(); // UI 갱신을 위한 새로운 키 할당
+      // UI를 완전히 초기 상태로 리셋
+      futureListInfo = fetchResultListInfo();
+    });
+  }
+
+  // new chat 시 변수값을 초기화.
+  void resetValue() {
+    cardSelections = {}; //id:선택여부
+    isLoading = false; // 로딩 상태를 관리하는 변수
+    text = ''; // 사용자가 입력한 증상 채팅 저장하는 변수
+    attempt = false; // 채팅 시도 여부
+    contents = {}; // 선지 데이터 초기화
+    selectedCard = false; // 선지가 생성됐는지
+    recieveResult = false; // 결과가 도착했는지
+    SessionID = 'null'; // 세션 ID 초기화
+
+    //결과 담는 변수들
+    resultlength = 0;
+    diseases = [];
+    departments = [];
+    descriptions = [];
+
+    // 입력 필드 초기화
+    _chatControlloer.clear();
+
+    setState(() {});
+  }
+
   Map<String, bool> cardSelections = {}; //id:선택여부
   bool isLoading = false; // 로딩 상태를 관리하는 변수
 
   @override
   void initState() {
     super.initState();
+    _loadAccessToken(); // 로큰 로드 함수 호출
     contents.forEach((key, value) {
       cardSelections[key] = false;
     });
+    futureListInfo = fetchResultListInfo();
   }
 
   void toggleCardState(String id) {
@@ -105,15 +158,17 @@ class _GptPageState extends State<GptPage> {
   // 백에 증상 채팅 입력 보내고 처리.
   Future<SessionData?> responseSymptom() async {
     _chatControlloer.clear(); // 텍스트 필드 클리어
+
     // 백엔드로 POST 요청 보내기
     try {
       http.Response response = await http.post(
-        Uri.parse('http://52.79.91.82/api/primary_disease_prediction/'),
-        headers: {'Content-Type': 'application/json'}, // POST 요청의 헤더
-        body: json.encode(
-            {'user_id': '777', 'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
+        Uri.parse('https://apayo.kro.kr/api/primary_disease_prediction/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        }, // POST 요청의 헤더
+        body: json.encode({'symptoms': text}), // POST 요청의 바디 (메시지 데이터)
       );
-
       if (response.statusCode == 200) {
         // 서버 응답 성공 확인
 
@@ -136,18 +191,21 @@ class _GptPageState extends State<GptPage> {
 
         SessionID = sessionData.sessionId;
         selectedCard = true; // 선지 생성됨.
-        // Optionally print or return session data
-        // print('Session ID: ${sessionData.sessionId}');
-        // print('Symptoms: ${sessionData.symptoms}');
-        // print('Questions: ${sessionData.questions}');
 
         // 생성된 SessionData 객체를 반환
         return sessionData;
       } else {
-        print('Request failed with status: ${response.statusCode}.');
+        // 서버 응답 실패 시
+        var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        var errorDetail =
+            errorResponse['message'] ?? 'An unknown error occurred.';
+
+        // 팝업 메시지 표시
+        PopupMessage(errorDetail).showPopup(context);
       }
     } catch (e) {
-      print('Caught an error: $e');
+      // 네트워크 오류 또는 기타 예외 처리
+      PopupMessage('Caught an error: $e').showPopup(context);
     }
     return null;
   }
@@ -203,8 +261,11 @@ class _GptPageState extends State<GptPage> {
       print(cardSelections
           .map((key, value) => MapEntry(key, value ? 'yes' : 'no')));
       http.Response response = await http.post(
-        Uri.parse('http://52.79.91.82/api/secondary_disease_prediction/'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('https://apayo.kro.kr/api/secondary_disease_prediction/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        },
         body: json.encode({
           'session_id': SessionID, // 세션 ID 전송
           'responses': cardSelections
@@ -233,19 +294,66 @@ class _GptPageState extends State<GptPage> {
         attempt = true;
         return resultData;
       } else {
-        print('Request failed with status: ${response.statusCode}.');
+        // 서버 응답 실패 시
+        var errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        var errorDetail =
+            errorResponse['message'] ?? 'An unknown error occurred.';
+
+        // 팝업 메시지 표시
+        PopupMessage(errorDetail).showPopup(context);
       }
     } catch (e) {
-      print('Caught an error: $e');
+      // 네트워크 오류 또는 기타 예외 처리
+      PopupMessage('"Apayo"가 아파요... \n\'New Chat\'버튼을 눌러 다시 대화를 생성해주세요!')
+          .showPopup(context);
+      print('선지 전송했는데... $e');
     }
     return null;
   }
+
+  // 로그아웃 함수
+  void logoutUser(BuildContext context) async {
+    await secureStorage.delete(key: 'access_token'); // SecureStorage에서 토큰 삭제
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
+// 사용자 채팅 목록
+  late Future<List<ResultInfo>> futureListInfo;
 
   // UI build
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        appBar: AppBar(
+          title: const Row(
+            children: [
+              Text(
+                'APAYO TEAM 6',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 94, 94, 94),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '         RYU SOOJUNG         LEE SANGYUN         HYUN SOYOUNG',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 94, 94, 94),
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          toolbarHeight: 70,
+          titleSpacing: 50, //앱바 왼쪽 간격추가
+        ),
         body: Stack(
           children: [
             Row(
@@ -256,8 +364,125 @@ class _GptPageState extends State<GptPage> {
                     decoration: const BoxDecoration(
                       color: Color(0xffEDEEFF),
                     ),
-                    child: const Column(// 채팅 기록 추가할 수 있어야 함.
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(50),
+                                  backgroundColor: const Color(0xffB1B3F4)),
+                              onPressed: () {
+                                startNewChat();
+                              },
+                              child: AutoSizeText(
+                                'New Chat',
+                                maxFontSize: 20,
+                                minFontSize: 5,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.02),
+                              ),
+                            ),
+                          ),
                         ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        AutoSizeText(
+                          textAlign: TextAlign.center,
+                          'Previous Conversations',
+                          maxFontSize: 15,
+                          minFontSize: 5,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.02,
+                              color: const Color(0xffB1B3F4)),
+                        ),
+                        // 그 동안 채팅 목록
+                        Expanded(
+                          flex: 7,
+                          child: FutureBuilder<List<ResultInfo>>(
+                            future: futureListInfo,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Text('No data available');
+                              } else {
+                                return ListView.builder(
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    final listInfo = snapshot.data![index];
+                                    return ListTile(
+                                      title: TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ResultlistDetail(
+                                                sessionId: listInfo.sessionId,
+                                                finalDisease:
+                                                    listInfo.finalDisease,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(listInfo.finalDisease),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: TextButton(
+                              onPressed: () {
+                                logoutUser(context);
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize
+                                    .min, // Row가 자식 크기에 맞춰 최소 크기를 가지도록 설정
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.logout,
+                                    color: const Color(0xffB1B3F4),
+                                    size: MediaQuery.of(context).size.width *
+                                        0.02,
+                                  ),
+                                  const SizedBox(width: 8), // 아이콘과 텍스트 사이의 간격
+                                  AutoSizeText(
+                                    'Log Out',
+                                    maxFontSize: 20,
+                                    minFontSize: 5,
+                                    style: TextStyle(
+                                        color: const Color(0xffB1B3F4),
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.02),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
@@ -402,7 +627,7 @@ class _GptPageState extends State<GptPage> {
                                     onSubmitted: (_) =>
                                         attempt // 이미 시도하여 new chat을 해야하는 경우.
                                             ? PopupMessage(
-                                                    '\'new chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                    '\'New Chat\'버튼을 클릭하여 새로운 채팅을 시작해주세요!')
                                                 .showPopup(context)
                                             : _sendMessage(), // 증상 입력 시도를 한 번 하면 새로운 채팅 만들라는 메시지 출력
                                     decoration: InputDecoration(
@@ -415,7 +640,7 @@ class _GptPageState extends State<GptPage> {
                                         onPressed: () =>
                                             attempt // 이미 시도하여 new chat을 해야하는 경우.
                                                 ? PopupMessage(
-                                                        '\'new chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
+                                                        '\'New Chat\' 버튼을 클릭하여 새로운 채팅을 시작해주세요!')
                                                     .showPopup(context)
                                                 : _sendMessage(),
                                       ),

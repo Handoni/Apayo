@@ -23,9 +23,9 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
 def decode_access_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: str = payload.get("user_id")
+        if user_id is None:
             raise jwt.InvalidTokenError
-        return email
+        return user_id
     except jwt.PyJWTError:
         raise jwt.InvalidTokenError

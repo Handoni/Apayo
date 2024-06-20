@@ -1,10 +1,13 @@
 from pymongo import MongoClient
 from api.schemas.disease_prediction_session import DiseasePredictionSession
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
+from api.schemas.user import UserSessionItem, UserSessionResponseBody
 from core.config import get_settings
+from fastapi import HTTPException
 
 settings = get_settings()
+
 
 class SessionManager:
     _sessions_cache = {}
@@ -14,7 +17,7 @@ class SessionManager:
     def get_db():
         if SessionManager._db is None:
             client = MongoClient(settings.mongo_uri)
-            SessionManager._db = client['disease_prediction_db']
+            SessionManager._db = client["Apayo"]
         return SessionManager._db
 
     @staticmethod
@@ -30,26 +33,59 @@ class SessionManager:
         return new_session
 
     @staticmethod
-    def get_session(session_id: str) -> DiseasePredictionSession:
+    def get_session_by_id(session_id: str) -> DiseasePredictionSession:
         """Retrieve a session from the local cache or MongoDB."""
         db = SessionManager.get_db()
 
         if session_id in SessionManager._sessions_cache:
             return SessionManager._sessions_cache[session_id]
 
-        session_data = db.disease_prediction_sessions.find_one({"session_id": session_id})
-        print(session_data)
+        session_data = db.disease_prediction_sessions.find_one(
+            {"session_id": session_id}
+        )
         if session_data:
             session = DiseasePredictionSession(**session_data)
             SessionManager._sessions_cache[session_id] = session
             return session
-        raise ValueError("Session not found")
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+
+    @staticmethod
+    def get_session_by_user(user_id: str) -> List[DiseasePredictionSession]:
+        """Retrieve a session from the local cache or MongoDB."""
+        db = SessionManager.get_db()
+
+        session_data = list(db.disease_prediction_sessions.find({"user_id": user_id}))
+        sessions = []
+        if session_data:
+            for data in session_data:
+                session = DiseasePredictionSession(**data)
+                sessions.append(session)
+            return sessions
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    def get_session_by_user_compact(user_id: str):
+        """Retrieve a session from the local cache or MongoDB."""
+        db = SessionManager.get_db()
+
+        session_data = list(db.disease_prediction_sessions.find({"user_id": user_id}))
+        sessions = []
+        if session_data:
+            for data in session_data:
+                if not data.get("final_diseases"):
+                    continue
+                item = UserSessionItem(
+                    session_id=data["session_id"], final_diseases=data["final_diseases"]
+                )
+                sessions.append(item)
+            return UserSessionResponseBody(sessions=sessions)
+        if not sessions:
+            return UserSessionResponseBody(sessions=[])
 
     @staticmethod
     def update_session(session_id: str, updates: Dict[str, any]):
         """Update an existing session both locally and in MongoDB."""
         db = SessionManager.get_db()
-        session = SessionManager.get_session(session_id)
+        session = SessionManager.get_session_by_id(session_id)
         if not session:
             raise ValueError("Session not found")
 
@@ -66,6 +102,5 @@ class SessionManager:
 
         # Update MongoDB
         db.disease_prediction_sessions.update_one(
-            {"session_id": session_id},
-            {"$set": updated_session_data}
+            {"session_id": session_id}, {"$set": updated_session_data}
         )
