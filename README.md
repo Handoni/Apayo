@@ -10,16 +10,13 @@ APAYO is a service designed for users who are unsure about which medical special
 
 <br/>
 
-## 🔗 Service Link
-https://apayo.kro.kr/
-
-Deployed with ![EC2](https://img.shields.io/badge/amazon%20ec2-ff9900?style=for-the-badge&logo=amazonec2&logoColor=white)
-![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
-
-
 
 
 ## ⚙️ Tech Stack
+### Deployed With
+![EC2](https://img.shields.io/badge/amazon%20ec2-ff9900?style=for-the-badge&logo=amazonec2&logoColor=white)
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+
 ### Front-end 
 
 ![flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
