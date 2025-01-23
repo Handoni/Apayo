@@ -90743,7 +90743,7 @@ case 3:n=c
 if(n==null)throw A.c(A.cy("Access token not found"))
 p=t.N
 s=4
-return A.N(A.aCz(A.dT("https://apayo.kro.kr/api/session/"+a+"/"),A.R(["Authorization","Bearer "+n],p,p)),$async$wb)
+return A.N(A.aCz(A.dT("https://apayo.p-e.kr/api/session/"+a+"/"),A.R(["Authorization","Bearer "+n],p,p)),$async$wb)
 case 4:o=c
 if(o.b===200){q=B.ay.d2(0,B.J.d2(0,o.w))
 s=1
@@ -90757,7 +90757,7 @@ while(true)switch(s){case 0:s=2
 return A.N(B.cH.xj(0,"access_token"),$async$uW)
 case 2:m=e
 if(m==null)throw A.c(A.cy("Access token not found"))
-p=A.dT("https://apayo.kro.kr/api/feedback/")
+p=A.dT("https://apayo.p-e.kr/api/feedback/")
 o=t.N
 n=A.R(["Authorization","Bearer "+m,"Content-Type","application/json"],o,o)
 s=3

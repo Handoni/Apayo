@@ -41,7 +41,7 @@ class ResultlistDetailState extends State<ResultlistDetail> {
       throw Exception('Access token not found');
     }
     final response = await http.get(
-      Uri.parse('https://apayo.kro.kr/api/session/$sessionId/'),
+      Uri.parse('https://apayo.p-e.kr/api/session/$sessionId/'),
       headers: {
         'Authorization': 'Bearer $accessToken',
       },
@@ -65,7 +65,7 @@ class ResultlistDetailState extends State<ResultlistDetail> {
     }
 
     final response = await http.post(
-      Uri.parse('https://apayo.kro.kr/api/feedback/'),
+      Uri.parse('https://apayo.p-e.kr/api/feedback/'),
       headers: {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
