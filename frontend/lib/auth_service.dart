@@ -4,7 +4,7 @@ class AuthService {
   Future<bool> verifyTokenWithServer(String token) async {
     try {
       var response = await http.get(
-        Uri.parse('https://apayo.kro.kr/api/users/me/'),
+        Uri.parse('https://apayo.p-e.kr/api/users/me/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

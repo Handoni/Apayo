@@ -22,7 +22,7 @@ class LoginPage extends StatelessWidget {
       return; // 입력이 없으면 로그인 요청을 보내지 않음
     }
     // 로그인 요청을 보낼 URL
-    Uri url = Uri.parse('https://apayo.kro.kr/api/login');
+    Uri url = Uri.parse('https://apayo.p-e.kr/api/login');
 
     try {
       var request = http.MultipartRequest('POST', url);

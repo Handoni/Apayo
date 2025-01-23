@@ -63,7 +63,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _getNearbyHospitals() async {
     if (_currentPosition == null) return;
-    const String url = 'https://apayo.kro.kr/api/get_hospitals';
+    const String url = 'https://apayo.p-e.kr/api/get_hospitals';
 
     final Map<String, dynamic> requestBody = {
       "xPos": _currentPosition!.longitude,
