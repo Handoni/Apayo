@@ -90629,7 +90629,7 @@ e=A.aB8(o.e.a.a,null)
 if(e==null)e=0
 s=g.length!==0&&f.length!==0&&e>0&&o.f!==""?2:4
 break
-case 2:n=A.dT("https://apayo.kro.kr/api/register")
+case 2:n=A.dT("https://apayo.p-e.kr/api/register")
 j=t.N
 i=t.z
 m=A.R(["nickname",g,"password",f,"sex",o.f,"age",e],j,i)

@@ -24,7 +24,7 @@ class SignUpPage extends StatelessWidget {
         age > 0 &&
         _selectedSex != '') {
       // 서버 요청 대기
-      Uri url = Uri.parse('https://apayo.kro.kr/api/register');
+      Uri url = Uri.parse('https://apayo.p-e.kr/api/register');
 
       //요청 본문 JSON 형식으로
       Map<String, dynamic> requestBody = {
